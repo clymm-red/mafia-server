@@ -2,6 +2,7 @@ import sys
 import logging
 
 from pydantic import ValidationError
+from pydantic_core import ErrorDetails
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from infrastructure.logger import get_logger
@@ -53,6 +54,7 @@ class RustFS(BaseEnv):
     access_key: str
     secret_key: str
     bucket_name: str
+
     model_config = SettingsConfigDict(env_prefix="RUSTFS_")
 
 
@@ -91,16 +93,20 @@ class Environment:
             return model()
         except ValidationError as e:
             model_name = model.__name__
-
             logger = get_logger(model_name, logging.DEBUG)
-            missing = [
-                ".".join(str(p) for p in err["loc"])
+
+            missing_fields = [
+                Environment.__get_field_name(err)
                 for err in e.errors()
                 if err["type"] == "missing"
             ]
 
-            logger.error(f"Нехватает переменных окружения: {missing}")
-            raise EnvironmentError(model_name, missing)
+            logger.error(f"Нехватает переменных окружения: {missing_fields}")
+            raise EnvironmentError(model_name, missing_fields)
+
+    @staticmethod
+    def __get_field_name(details: ErrorDetails):
+        return ".".join(str(p) for p in details["loc"])
 
 
 env = Environment.read_or_exit()
