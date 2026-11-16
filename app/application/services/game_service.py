@@ -1,4 +1,5 @@
 from uuid import UUID
+from collections import defaultdict
 
 from dishka import FromDishka
 
@@ -22,12 +23,20 @@ class GameService:
     def __init__(
         self,
         game_repository: FromDishka[GameRepository],
-        lobby_repostory: FromDishka[LobbyRepository],
+        lobby_repository: FromDishka[LobbyRepository],
         role_distribution_service: FromDishka[RoleDistributionService],
     ):
         self._game_repository = game_repository
-        self._lobby_reposiroty = lobby_repostory
+        self._lobby_repository = lobby_repository
         self._role_distribution_service = role_distribution_service
+        self._night_role_action_order = [
+            RoleEnum.PROSTITUTE,
+            RoleEnum.MAFIA_MEMBER,
+            RoleEnum.MANIAC,
+            RoleEnum.DOCTOR,
+            RoleEnum.MAFIA_DON,
+            RoleEnum.SHERIFF,
+        ]
 
     async def create_game_from_lobby(
         self, lobby: Lobby, role_set: list[RoleEnum]
@@ -47,7 +56,7 @@ class GameService:
             admin=lobby.admin,
         )
 
-        await self._lobby_reposiroty.prepare_for_game(lobby.id)
+        await self._lobby_repository.prepare_for_game(lobby.id)
         await self._game_repository.create_game(game)
         return game
 
@@ -106,37 +115,24 @@ class GameService:
     async def get_night_action_player_groups(
         self, game: Game
     ) -> dict[RoleEnum, list[Player]]:
-        action_order: dict[RoleEnum, list[Player]] = {}
-        for player in game.players:
-            if not player.is_alive:
-                continue
+        action_order: dict[RoleEnum, list[Player]] = defaultdict(list)
 
-            logger.debug(player.role.role_name)
-            if not action_order.get(player.role.role_name):
-                action_order[player.role.role_name] = [player]
-            else:
-                action_order[player.role.role_name] += [player]
+        alive_players = [p for p in game.players if p.is_alive]
+
+        for player in alive_players:
+            action_order[player.role.role_name].append(player)
 
         action_order.pop(RoleEnum.CITIZEN)
+
         players_info = [
-            f"{player.user.username} {player.role.role_name.value}"
-            for player in game.players
+            f"{p.user.username} {p.role.role_name.value}" for p in game.players
         ]
+
         logger.debug(
             f"get_night_action_player_groups ({game.id}) - {players_info}"
         )
 
-        return action_order
-
-    async def get_night_role_action_order(self) -> list[RoleEnum]:
-        return [
-            RoleEnum.PROSTITUTE,
-            RoleEnum.MAFIA_MEMBER,
-            RoleEnum.MANIAC,
-            RoleEnum.DOCTOR,
-            RoleEnum.MAFIA_DON,
-            RoleEnum.SHERIFF,
-        ]
+        return dict(action_order)
 
     async def proceed_next_stage(self, game: Game) -> Game:
         prev_stage = game.game_stage
@@ -162,23 +158,23 @@ class GameService:
 
     async def get_most_voted_players(self, game: Game) -> list[Player]:
         logger.debug(f"get_most_voted_players ({game.id})")
-        most_voted: list[Player] = []
-        max_vote_count = 0
+
+        candidates: list[Player] = []
 
         for player in game.players:
             logger.debug(
                 f"watching {player.user.username} votes: {player.votes_count}"
             )
-            if not player.is_alive:
-                continue
+            if player.is_alive and player.votes_count > 0:
+                candidates.append(player)
 
-            votes_count = player.votes_count
-
-            if votes_count > max_vote_count:
-                most_voted = [player]
-                max_vote_count = votes_count
-            elif votes_count == max_vote_count:
-                most_voted.append(player)
+        if candidates:
+            max_vote_count = max(p.votes_count for p in candidates)
+            most_voted = [
+                p for p in candidates if p.votes_count == max_vote_count
+            ]
+        else:
+            most_voted = []
 
         logger.debug(f"chosen candidates: {most_voted}")
         return most_voted
