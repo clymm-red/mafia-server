@@ -1,4 +1,10 @@
+import sys
+import logging
+
+from pydantic import RedisDsn, ValidationError
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from infrastructure.logger import get_logger
 
 
 class BaseEnv(BaseSettings):
@@ -10,7 +16,7 @@ class BaseEnv(BaseSettings):
 class Redis(BaseEnv):
     """Конфигурация Redis"""
 
-    url: str
+    url: RedisDsn
 
     model_config = SettingsConfigDict(env_prefix="REDIS_")
 
@@ -50,11 +56,51 @@ class RustFS(BaseEnv):
     model_config = SettingsConfigDict(env_prefix="RUSTFS_")
 
 
+class EnvironmentError(RuntimeError):
+    model_name: str
+    missing_fields: list[str]
+
+    def __init__(self, model_name: str, missing_fields: list[str]):
+        super().__init__()
+        self.model_name = model_name
+        self.missing_fields = missing_fields
+
+
 class Environment:
-    postgres: Postgres = Postgres()
-    redis: Redis = Redis()
-    jwt: JWT = JWT()
-    s3: RustFS = RustFS()
+    postgres: Postgres
+    redis: Redis
+    jwt: JWT
+    rustfs: RustFS
+
+    def __init__(self):
+        self.postgres = Environment.__load(Postgres)
+        self.redis = Environment.__load(Redis)
+        self.jwt = Environment.__load(JWT)
+        self.rustfs = Environment.__load(RustFS)
+
+    @staticmethod
+    def read_or_exit():
+        try:
+            return Environment()
+        except EnvironmentError:
+            sys.exit(1)
+
+    @staticmethod
+    def __load[T: BaseEnv](model: type[T]) -> T:
+        try:
+            return model()
+        except ValidationError as e:
+            model_name = model.__name__
+
+            logger = get_logger(model_name, logging.DEBUG)
+            missing = [
+                ".".join(str(p) for p in err["loc"])
+                for err in e.errors()
+                if err["type"] == "missing"
+            ]
+
+            logger.error(f"Нехватает переменных окружения: {missing}")
+            raise EnvironmentError(model_name, missing)
 
 
-env = Environment()
+env = Environment.read_or_exit()
