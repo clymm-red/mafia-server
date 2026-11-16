@@ -141,13 +141,16 @@ class GameService:
     async def proceed_next_stage(self, game: Game) -> Game:
         prev_stage = game.game_stage
         game.game_stage = await game.get_next_stage()
+
         if game.game_stage == GameStageEnum.DAY_TALK:
             game.round_count += 1
             logger.debug(f"round count incremented {game.round_count}")
+
         logger.debug(
             f"############## proceed_next_stage ({game.id}) "
             f"from {prev_stage} to {game.game_stage}"
         )
+
         await self.save_game(game)
         return game
 
@@ -161,17 +164,21 @@ class GameService:
         logger.debug(f"get_most_voted_players ({game.id})")
         most_voted: list[Player] = []
         max_vote_count = 0
+
         for player in game.players:
             logger.debug(
                 f"watching {player.user.username} votes: {player.votes_count}"
             )
             if not player.is_alive:
                 continue
-            if int(player.votes_count) > 0:
-                if int(player.votes_count) > max_vote_count:
-                    most_voted = [player]
-                    max_vote_count = int(player.votes_count)
-                elif int(player.votes_count) == max_vote_count:
-                    most_voted.append(player)
+
+            votes_count = player.votes_count
+
+            if votes_count > max_vote_count:
+                most_voted = [player]
+                max_vote_count = votes_count
+            elif votes_count == max_vote_count:
+                most_voted.append(player)
+
         logger.debug(f"chosen candidates: {most_voted}")
         return most_voted
