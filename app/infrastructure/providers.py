@@ -11,9 +11,11 @@ from infrastructure.factories import (
     RedisClientFactory,
 )
 from infrastructure.websocket import WebSocketManager
+from infrastructure.s3.repositories import S3Repository
 from infrastructure.redis.repositories import GameRepository, LobbyRepository
 from infrastructure.database.repositories import (
     UserRepository,
+    AvatarRepository,
 )
 
 
@@ -68,13 +70,13 @@ class InfrastructureProvider(Provider):
     ) -> UserRepository:
         return UserRepository(session_factory)
 
-    # @provide(scope=Scope.REQUEST)
-    # def avatar_repository(
-    #     self,
-    #     session_factory: DBSessionFactory,
-    #     s3_repo: S3Repository,
-    # ) -> AvatarRepository:
-    #     return AvatarRepository(session_factory, s3_repo)
+    @provide(scope=Scope.REQUEST)
+    def avatar_repository(
+        self,
+        session_factory: DBSessionFactory,
+        s3_repository: S3Repository,
+    ) -> AvatarRepository:
+        return AvatarRepository(session_factory, s3_repository)
 
     @provide(scope=Scope.REQUEST)
     def game_repository(
@@ -88,6 +90,6 @@ class InfrastructureProvider(Provider):
     ) -> LobbyRepository:
         return LobbyRepository(redis, user_repo)
 
-    # @provide(scope=Scope.REQUEST)
-    # def s3_repository(self, s3_client: BaseClient) -> S3Repository:
-    #     return S3Repository(s3_client)
+    @provide(scope=Scope.APP)
+    def s3_repository(self, s3_client: BaseClient) -> S3Repository:
+        return S3Repository(s3_client)

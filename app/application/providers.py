@@ -6,6 +6,7 @@ from application.services import (
     GameService,
     UserService,
     LobbyService,
+    AvatarService,
     SecurityService,
     GameManagerService,
     RoomWebSocketService,
@@ -16,13 +17,20 @@ from application.ws_message_handlers import (
     LobbyWSMessageHandler,
 )
 from infrastructure.redis.repositories import GameRepository, LobbyRepository
-from infrastructure.database.repositories import UserRepository
+from infrastructure.database.repositories import (
+    UserRepository,
+    AvatarRepository,
+)
 
 
 class ApplicationProvider(Provider):
     @provide(scope=Scope.REQUEST)
     def jwt_service(self) -> JWTService:
         return JWTService()
+
+    @provide(scope=Scope.REQUEST)
+    def avatar_service(self, avatar_repo: AvatarRepository) -> AvatarService:
+        return AvatarService(avatar_repo)
 
     @provide(scope=Scope.REQUEST)
     def game_service(
@@ -51,9 +59,9 @@ class ApplicationProvider(Provider):
         user_repo: UserRepository,
         lobby_repo: LobbyRepository,
         game_repo: GameRepository,
-        # avatar_repo: AvatarRepository,
+        avatar_service: AvatarService,
     ) -> UserService:
-        return UserService(user_repo, lobby_repo, game_repo)
+        return UserService(user_repo, lobby_repo, game_repo, avatar_service)
 
     @provide(scope=Scope.REQUEST)
     def security_service(

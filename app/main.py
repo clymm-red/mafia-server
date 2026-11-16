@@ -18,6 +18,7 @@ from application.providers import ApplicationProvider
 from presentation.providers import AuthProvider
 from infrastructure.providers import InfrastructureProvider
 from infrastructure.logger_config import get_logger
+from infrastructure.s3.repositories import S3Repository
 from presentation.api.v1.routers.user_router import user_router
 from presentation.api.v1.routers.lobby_router import lobby_router
 from infrastructure.factories.db_session_factory import DBSessionFactory
@@ -34,6 +35,13 @@ async def lifespan(app: FastAPI):
     logger.debug("Mafia server started")
     db_session_factory = await container.get(DBSessionFactory)
     await db_session_factory.create_tables()
+
+    s3_repository = await container.get(S3Repository)
+    try:
+        await s3_repository.ensure_bucket()
+    except Exception as e:
+        logger.error(f"Failed to ensure S3 bucket: {e}")
+
     yield
     logger.debug("Mafia server shut down")
 

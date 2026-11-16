@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from collections.abc import AsyncGenerator
 
-from boto3.session import boto3
+import boto3
 from botocore.client import BaseClient
 from botocore.config import Config as BotocoreConfig
 
@@ -24,11 +24,14 @@ class S3ClientFactory:
             retries={"max_attempts": 3, "mode": "standard"},
             region_name="ru-1",  # Можно вынести в env если нужно
         )
+        endpoint_url = env.rustfs.address
+        if "://" not in endpoint_url:
+            endpoint_url = f"http://{endpoint_url}"
         return boto3.client(
             "s3",
-            endpoint_url=env.s3.address,  # берём address из env
-            aws_access_key_id=env.s3.access_key,
-            aws_secret_access_key=env.s3.secret_key,
+            endpoint_url=endpoint_url,
+            aws_access_key_id=env.rustfs.access_key,
+            aws_secret_access_key=env.rustfs.secret_key,
             config=config,
         )
 

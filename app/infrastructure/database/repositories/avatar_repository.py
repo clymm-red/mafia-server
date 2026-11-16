@@ -1,5 +1,3 @@
-# infrastructure/repositories/avatar_repository.py
-
 from uuid import UUID
 from datetime import datetime
 
@@ -63,6 +61,9 @@ class AvatarRepository:
         content = await file.read()
         logger.info(f"\n\tfile_key:{file_key}\n\tcontent:{content[:80]}")
 
+        # Запоминаем старый ключ до перезаписи метаданных
+        old_file_key = await self._get_file_key_by_user_id(user_id)
+
         try:
             # Загружаем в RustFS
             await self.s3_repository.upload(file_key, content)
@@ -73,7 +74,8 @@ class AvatarRepository:
             )
             # Если была старая аватарка - удаляем
 
-            await self._delete_old_avatar(user_id, file_key)
+            if old_file_key and old_file_key != file_key:
+                await self._delete_file(old_file_key)
 
             return True
 
@@ -81,30 +83,30 @@ class AvatarRepository:
             logger.exception(e)
             return False
 
-    # async def delete_avatar(self, user_id: UUID) -> bool:
-    #     """
-    #     Удаляет аватарку пользователя
-    #     Returns: True если удалено, False если не было
-    #     """
-    #     logger.debug(f"delete_avatar for user: {user_id}")
+    async def delete_avatar(self, user_id: UUID) -> bool:
+        """
+        Удаляет аватарку пользователя
+        Returns: True если удалено, False если не было
+        """
+        logger.debug(f"delete_avatar for user: {user_id}")
 
-    #     # Получаем путь к файлу
-    #     file_key = await self._get_file_key_by_user_id(user_id)
-    #     if not file_key:
-    #         return False
+        # Получаем путь к файлу
+        file_key = await self._get_file_key_by_user_id(user_id)
+        if not file_key:
+            return False
 
-    #     try:
-    #         # Удаляем файл из RustFS
-    #         await self.s3_repository.delete(file_key)
+        try:
+            # Удаляем файл из RustFS
+            await self.s3_repository.delete(file_key)
 
-    #         # Удаляем запись из БД
-    #         await self._delete_avatar_metadata(user_id)
+            # Удаляем запись из БД
+            await self._delete_avatar_metadata(user_id)
 
-    #         return True
+            return True
 
-    #     except ClientError as e:
-    #         logger.error(f"S3 delete error: {e}")
-    #         return False
+        except ClientError as e:
+            logger.error(f"S3 delete error: {e}")
+            return False
 
     async def _get_file_key_by_user_id(self, user_id: UUID) -> str | None:
         """Получает file_key из БД по user_id"""
@@ -120,8 +122,6 @@ class AvatarRepository:
         self, user_id: UUID, file_key: str, file: UploadFile, file_size: int
     ):
         """Сохраняет метаданные в БД"""
-        from infrastructure.database.models.avatar_model import AvatarModel
-
         session = await self.session_factory.get_session()
         async with session:
             async with session.begin():
@@ -158,13 +158,9 @@ class AvatarRepository:
                 stmt = delete(AvatarModel).where(AvatarModel.user_id == user_id)
                 await session.execute(stmt)
 
-    async def _delete_old_avatar(self, user_id: UUID, new_file_key: str):
-        """Удаляет старый файл, если он отличается от нового"""
-        old_file_key = await self._get_file_key_by_user_id(user_id)
-
-        # Если старый файл существует и это не тот же самый файл
-        if old_file_key and old_file_key != new_file_key:
-            try:
-                await self.s3_repository.delete(old_file_key)
-            except ClientError as e:
-                logger.warning(f"Failed to delete old avatar: {e}")
+    async def _delete_file(self, file_key: str) -> None:
+        """Удаляет файл из S3"""
+        try:
+            await self.s3_repository.delete(file_key)
+        except ClientError as e:
+            logger.warning(f"Failed to delete old avatar: {e}")

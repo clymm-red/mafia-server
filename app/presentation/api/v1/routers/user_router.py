@@ -9,7 +9,11 @@ from dishka.integrations.fastapi import inject
 
 from application.queries import UserAuthQuery
 from application.commands import UserCreateCommand
-from application.services import UserService, SecurityService
+from application.services import (
+    UserService,
+    AvatarService,
+    SecurityService,
+)
 from infrastructure.logger_config import get_logger
 from presentation.api.v1.dtos.requests import UserCreate, CurrentUser
 from presentation.api.v1.dtos.responses import (
@@ -154,9 +158,9 @@ async def get_me(
 @inject
 async def get_avatar(
     current_user: FromDishka[CurrentUser],
-    user_service: FromDishka[UserService],
+    avatar_service: FromDishka[AvatarService],
 ):
-    file = await user_service.get_user_avatar(current_user.id)
+    file = await avatar_service.get_user_avatar(current_user.id)
     if not file:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Avatar not found"
@@ -169,7 +173,7 @@ async def get_avatar(
 async def set_avatar(
     file: UploadFile,
     current_user: FromDishka[CurrentUser],
-    user_service: FromDishka[UserService],
+    avatar_service: FromDishka[AvatarService],
 ):
     if not file or not file.filename:
         raise HTTPException(
@@ -177,7 +181,7 @@ async def set_avatar(
         )
 
     try:
-        success = await user_service.set_user_avatar(current_user.id, file)
+        success = await avatar_service.set_user_avatar(current_user.id, file)
 
         if not success:
             raise HTTPException(
@@ -185,7 +189,7 @@ async def set_avatar(
                 detail="Failed to upload avatar",
             )
 
-        avatar_bytes = await user_service.get_user_avatar(current_user.id)
+        avatar_bytes = await avatar_service.get_user_avatar(current_user.id)
 
         return Response(
             content=avatar_bytes,
