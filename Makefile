@@ -3,7 +3,7 @@
 all: typecheck lint fmt
 
 dev:
-	uv run fastapi dev
+	uv run fastapi dev app/main.py
 
 lint:
 	uv run ruff check .
@@ -12,7 +12,7 @@ fmt:
 	uv run ruff format .
 
 typecheck:
-	ty check
+	uv run ty check
 
 fix:
 	uv run ruff check --fix .
