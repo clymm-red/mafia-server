@@ -4,7 +4,7 @@ from dishka import FromDishka
 from fastapi import WebSocket
 
 from domain.enums import WebSocketTopicEnum, WebSocketMessageTypeEnum
-from application.commands import LobbyJoinCommand, LobbyLeaveCommand
+from application.commands import LobbyJoinCommand
 from application.services import UserService, LobbyService
 from infrastructure.logger import get_logger
 from infrastructure.websocket import WebSocketManager

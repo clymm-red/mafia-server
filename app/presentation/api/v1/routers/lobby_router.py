@@ -1,13 +1,10 @@
 from dishka import FromDishka
-from fastapi import HTTPException
 from fastapi.routing import APIRouter
 from dishka.integrations.fastapi import inject
 
-from domain.exceptions import DomainException
-from application.commands import LobbyJoinCommand, LobbyLeaveCommand, LobbyCreateCommand
+from application.commands import LobbyCreateCommand
 from application.services import LobbyService
 from presentation.api.v1.dtos.requests import CurrentUser, LobbyCreate
-from presentation.api.v1.dtos.responses import LobbyLeaveResponse
 
 
 lobby_router = APIRouter(prefix="/lobbies", tags=["lobby"])
