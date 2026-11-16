@@ -29,7 +29,9 @@ async def room_websocket(
     token = websocket.headers.get("authorization", "").removeprefix("Bearer ")
 
     if not token:
-        token = websocket.query_params.get("authorization", "").removeprefix("Bearer ")
+        token = websocket.query_params.get("authorization", "").removeprefix(
+            "Bearer "
+        )
 
     current_user = None
     subscribed = False
@@ -39,7 +41,9 @@ async def room_websocket(
             current_user = await security_service.get_current_user(token)
 
         async with container() as request_container:
-            room_websocket_service = await request_container.get(RoomWebSocketService)
+            room_websocket_service = await request_container.get(
+                RoomWebSocketService
+            )
             await room_websocket_service.subscribe_room_webscoket(
                 room_id, current_user, websocket
             )
@@ -51,7 +55,9 @@ async def room_websocket(
             ws_message = WebSocketMessage(**raw_message)
             try:
                 async with container() as request_container:
-                    room_service = await request_container.get(RoomWebSocketService)
+                    room_service = await request_container.get(
+                        RoomWebSocketService
+                    )
                     await room_service.handle_message(ws_message, current_user)
 
             except DomainException as e:
@@ -73,12 +79,17 @@ async def room_websocket(
         logger.info(f"{username} разорвал соединение с комнатой {room_id}")
 
     finally:
-        # Очистка должна выполняться при любом выходе (disconnect, отмена задачи,
-        # исключение во время подписки), иначе лобби/участники остаются в Redis.
+        # Очистка должна выполняться при любом выходе (disconnect,
+        # отмена задачи, исключение во время подписки), иначе
+        # лобби/участники остаются в Redis.
         if subscribed and current_user is not None:
             try:
                 async with container() as request_container:
-                    room_service = await request_container.get(RoomWebSocketService)
-                    await room_service.unsubscribe_room_webscoket(room_id, current_user)
+                    room_service = await request_container.get(
+                        RoomWebSocketService
+                    )
+                    await room_service.unsubscribe_room_webscoket(
+                        room_id, current_user
+                    )
             except Exception as e:
                 logger.error(f"Error on unsubscribe: {e.args}")

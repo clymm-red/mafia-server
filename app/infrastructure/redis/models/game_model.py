@@ -24,7 +24,9 @@ class GameModel:
                 self.player_ids.append(str(player_user_id))
             else:
                 self.player_ids.append(player_user_id)
-        self.admin_id = str(admin_id) if isinstance(admin_id, UUID) else admin_id
+        self.admin_id = (
+            str(admin_id) if isinstance(admin_id, UUID) else admin_id
+        )
         self.round_count = round_count
         self.start_date = start_date or datetime.now().isoformat()
         self.game_status = game_status

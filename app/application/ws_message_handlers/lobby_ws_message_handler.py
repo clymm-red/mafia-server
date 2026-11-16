@@ -10,7 +10,10 @@ from application.commands import LobbyLeaveCommand
 from application.services import GameService, GameManagerService
 from infrastructure.logger import get_logger
 from infrastructure.websocket import WebSocketManager
-from infrastructure.websocket.dtos import WebSocketMessage, WSLobbyCommandPayload
+from infrastructure.websocket.dtos import (
+    WebSocketMessage,
+    WSLobbyCommandPayload,
+)
 from presentation.api.v1.dtos.requests import CurrentUser
 from application.services.lobby_service import LobbyService
 
@@ -33,7 +36,9 @@ class LobbyWSMessageHandler:
         self._game_manager = game_manager
         self._websocket_manager = websocket_manager
 
-    async def handle(self, message: WebSocketMessage, current_user: CurrentUser):
+    async def handle(
+        self, message: WebSocketMessage, current_user: CurrentUser
+    ):
         logger.debug("handle")
         logger.debug(message.model_dump_json())
         """
@@ -46,13 +51,16 @@ class LobbyWSMessageHandler:
             if ws_command.action_type == WebSocketLobbyCommandTypeEnum.START:
                 if not ws_command.role_set:
                     exc = DomainException(
-                        WebSocketTopicEnum.LOBBY, "WebsSocketCommand missing role_set"
+                        WebSocketTopicEnum.LOBBY,
+                        "WebsSocketCommand missing role_set",
                     )
                     logger.error(exc)
                     raise exc
 
-                lobby = await self._lobby_service._lobby_repository.get_lobby_by_id(
-                    ws_command.room_id
+                lobby = (
+                    await self._lobby_service._lobby_repository.get_lobby_by_id(
+                        ws_command.room_id
+                    )
                 )
 
                 if not lobby:

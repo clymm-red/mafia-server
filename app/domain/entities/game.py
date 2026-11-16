@@ -62,7 +62,9 @@ class Game:
     async def check_finish_condition(self) -> bool:
 
         end = False
-        player_count = len([player for player in self.players if player.is_alive])
+        player_count = len(
+            [player for player in self.players if player.is_alive]
+        )
         maniac = await self._is_maniac_alive()
         mafia_number = await self._get_alive_mafia_number()
 
@@ -80,7 +82,9 @@ class Game:
         logger.debug(f"{self.id} check_finish_condition - {end}")
         return end
 
-    async def process_role_action(self, actor_id: UUID, target_id: UUID) -> bool | None:
+    async def process_role_action(
+        self, actor_id: UUID, target_id: UUID
+    ) -> bool | None:
         actor = None
         target = None
 
@@ -100,7 +104,8 @@ class Game:
 
         result = actor.perform_role_action(target)
         logger.debug(
-            f"{self.id} {actor.user.username} process_role_action - result {result}"
+            f"{self.id} {actor.user.username} process_role_action "
+            f"- result {result}"
         )
         return result if isinstance(result, bool) else None
 
@@ -126,7 +131,8 @@ class Game:
 
         actor.set_vote(target)
         logger.debug(
-            f"{self.id} process_vote {actor.user.id} target {target.user.username}"
+            f"{self.id} process_vote {actor.user.id} "
+            f"target {target.user.username}"
         )
 
     async def resolve_night_stage(self) -> list[Player]:
@@ -139,7 +145,10 @@ class Game:
                 and await self._is_player_about_to_die(player)
             ):
                 disabled_player = await self._get_disabled_player()
-                if disabled_player and not disabled_player[PlayerStatusEnum.HEALED]:
+                if (
+                    disabled_player
+                    and not disabled_player[PlayerStatusEnum.HEALED]
+                ):
                     disabled_player.die()  # prostitute's visitor dies
                     died_players.append(disabled_player)
                 player.die()  # prostitute dies
@@ -155,12 +164,13 @@ class Game:
         # clean up statuses after night
         await self.manage_players_statuses()
 
-        logger.debug(
-            f"{self.id} resolve_night_stage - died {[player.user.username for player in died_players]}"
-        )
+        died_usernames = [player.user.username for player in died_players]
+        logger.debug(f"{self.id} resolve_night_stage - died {died_usernames}")
         return died_players
 
-    async def resole_voting_stage(self, players: list[Player] | None = None) -> Player:
+    async def resole_voting_stage(
+        self, players: list[Player] | None = None
+    ) -> Player:
         logger.debug(f"{self.id} resole_voting_stage")
         if not players:
             players = self.players
@@ -229,7 +239,8 @@ class Game:
         result = False
         if (
             (
-                player[PlayerStatusEnum.RAIDED] == await self._get_alive_mafia_number()
+                player[PlayerStatusEnum.RAIDED]
+                == await self._get_alive_mafia_number()
                 or player[PlayerStatusEnum.ASSAULTED]
             )
             and not player[PlayerStatusEnum.HEALED]
@@ -237,7 +248,8 @@ class Game:
         ):
             result = True
         logger.debug(
-            f"{self.id} {player.user.username} _is_player_about_to_die - {result}"
+            f"{self.id} {player.user.username} _is_player_about_to_die "
+            f"- {result}"
         )
         return result
 

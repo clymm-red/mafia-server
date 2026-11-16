@@ -2,10 +2,18 @@ from domain.enums import WebSocketTopicEnum, WebSocketMessageTypeEnum
 from infrastructure.websocket.dtos.ws_game_data_payload import WSGameDataPayload
 from infrastructure.websocket.dtos.ws_game_info_payload import WSGameInfoPayload
 from infrastructure.websocket.dtos.ws_game_role_payload import WSGameRolePayload
-from infrastructure.websocket.dtos.ws_lobby_data_payload import WSLobbyDataPayload
-from infrastructure.websocket.dtos.base_websocket_message import BaseWebSocketMessage
-from infrastructure.websocket.dtos.ws_game_command_payload import WSGameCommandPayload
-from infrastructure.websocket.dtos.ws_lobby_command_payload import WSLobbyCommandPayload
+from infrastructure.websocket.dtos.ws_lobby_data_payload import (
+    WSLobbyDataPayload,
+)
+from infrastructure.websocket.dtos.base_websocket_message import (
+    BaseWebSocketMessage,
+)
+from infrastructure.websocket.dtos.ws_game_command_payload import (
+    WSGameCommandPayload,
+)
+from infrastructure.websocket.dtos.ws_lobby_command_payload import (
+    WSLobbyCommandPayload,
+)
 from infrastructure.websocket.dtos.ws_game_new_stage_payload import (
     WSGameNewStagePayload,
 )

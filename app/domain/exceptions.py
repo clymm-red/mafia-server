@@ -65,7 +65,9 @@ class UnexpectedWebSocketMessageActionType(DomainException):
         provided: str | None = None,
         expected: str | None = None,
     ):
-        message: str = f"Неверный ActionType: получен {provided}, ожидался {expected}"
+        message: str = (
+            f"Неверный ActionType: получен {provided}, ожидался {expected}"
+        )
         super().__init__(WebSocketTopicEnum.GAME, message)
 
 
@@ -142,9 +144,8 @@ class ActionAlreadyPerformedException(RepoException):
         context_id: str | None = None,
         user_id: str | None = None,
     ):
-        message = (
-            message
-            or f"Конкурентное действие пользователя {user_id} в лобби {context_id}"
+        message = message or (
+            f"Конкурентное действие пользователя {user_id} в лобби {context_id}"
         )
         self.context_id = context_id
         self.user_id = user_id
@@ -158,9 +159,8 @@ class LobbyIsFullException(DomainException):
         context_id: str | None = None,
         user_id: str | None = None,
     ):
-        message = (
-            message
-            or f"Пользователь {user_id} не может войти в полное лобби {context_id}"
+        message = message or (
+            f"Пользователь {user_id} не может войти в полное лобби {context_id}"
         )
         self.context_id = context_id
         self.user_id = user_id

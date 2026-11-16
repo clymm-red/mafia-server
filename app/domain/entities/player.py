@@ -49,7 +49,8 @@ class Player:
 
     def __str__(self):
         return (
-            f"{self.user.username} ({self.role.role_name.value}) {str(self.user.id)}\n{'=' * 80}\n\t"
+            f"{self.user.username} ({self.role.role_name.value}) "
+            f"{str(self.user.id)}\n{'=' * 80}\n\t"
             f"alive: {self.is_alive}\n\tvotes: {self.votes_count}\n\t"
             f"statuses: {', '.join(self.status_list)}"
         )
@@ -64,7 +65,9 @@ class Player:
 
         if self.is_alive and target_player.is_alive:
             if self[PlayerStatusEnum.ACTED]:
-                actionresult = self.role.perform_action(target_player, alt_mode=True)
+                actionresult = self.role.perform_action(
+                    target_player, alt_mode=True
+                )
             actionresult = self.role.perform_action(target_player)
 
         self += PlayerStatusEnum.ACTED
@@ -73,17 +76,24 @@ class Player:
             return actionresult
 
     def set_vote(self, target_player: Self):
-        logger.debug(f"{self.user.username} set_vote {target_player.user.username}")
+        logger.debug(
+            f"{self.user.username} set_vote {target_player.user.username}"
+        )
         if self[PlayerStatusEnum.DISABLED_PREV]:
             logger.debug(f"{self.user.username} cannot vote - self disabled")
             raise PlayerDisabledException()
 
-        if target_player[PlayerStatusEnum.DISABLED_PREV] or not target_player.is_alive:
+        if (
+            target_player[PlayerStatusEnum.DISABLED_PREV]
+            or not target_player.is_alive
+        ):
             logger.debug(f"{self.user.username} cannot vote - target disabled")
             raise VotedDisabledTargetException()
 
         if target_player[PlayerStatusEnum.UNTARGETABLE]:
-            logger.debug(f"{self.user.username} cannot vote - target untargetable")
+            logger.debug(
+                f"{self.user.username} cannot vote - target untargetable"
+            )
             raise VotedUntargetableException()
 
         target_player.votes_count += 1
@@ -194,7 +204,9 @@ class Sheriff(Role):
     role_name: RoleEnum = RoleEnum.SHERIFF
     team: TeamEnum = TeamEnum.CITIZEN_TEAM
 
-    def perform_action(self, target_player: Player, alt_mode=False) -> bool | None:
+    def perform_action(
+        self, target_player: Player, alt_mode=False
+    ) -> bool | None:
         """
         Get information whether target_player is from Mafia team
         """

@@ -68,7 +68,9 @@ class GameRepository:
         """
         logger.debug(f"create_game {game.id}")
         logger.debug(game.players)
-        player_models = [await self._player_to_model(player) for player in game.players]
+        player_models = [
+            await self._player_to_model(player) for player in game.players
+        ]
         game_model = await self._domain_to_model(game)
         logger.debug(game_model.to_dict())
         # Используем pipeline для атомарного выполнения
@@ -105,7 +107,9 @@ class GameRepository:
                     await pipe.expire(game_participants_key, self.GAME_TTL)
 
                     await pipe.hset(
-                        self.ACTIVE_USERS_KEY, str(player_model.user_id), game_model.id
+                        self.ACTIVE_USERS_KEY,
+                        str(player_model.user_id),
+                        game_model.id,
                     )
                     await pipe.execute_command(
                         "HEXPIRE",
@@ -124,7 +128,9 @@ class GameRepository:
         Сохранение Game в Redis
         """
         game_model = await self._domain_to_model(game)
-        player_models = [await self._player_to_model(player) for player in game.players]
+        player_models = [
+            await self._player_to_model(player) for player in game.players
+        ]
         # Используем pipeline для атомарного выполнения
         async with self.redis.pipeline(transaction=True) as pipe:
             # Сохраняем данные игры
@@ -138,12 +144,16 @@ class GameRepository:
                 if player_model:
                     # сохранить данные игрока
                     await pipe.hset(
-                        self.PLAYER_KEY.format(player_user_id=player_model.user_id),
+                        self.PLAYER_KEY.format(
+                            player_user_id=player_model.user_id
+                        ),
                         mapping=player_model.to_dict(),
                     )
                     # связать игрока с игрой
                     await pipe.sadd(
-                        self.GAME_PARTICIPANTS_KEY.format(game_id=game_model.id),
+                        self.GAME_PARTICIPANTS_KEY.format(
+                            game_id=game_model.id
+                        ),
                         player_model.user_id,
                     )
 
@@ -168,7 +178,9 @@ class GameRepository:
             return await self.delete_game(game_id)
 
         async with self.redis.pipeline(transaction=True) as pipe:
-            game_participants_key = self.GAME_PARTICIPANTS_KEY.format(game_id=game_id)
+            game_participants_key = self.GAME_PARTICIPANTS_KEY.format(
+                game_id=game_id
+            )
 
             await pipe.watch(game_participants_key)
             await pipe.watch(self.ACTIVE_USERS_KEY)
@@ -179,7 +191,9 @@ class GameRepository:
             # удалить игрока из хэша активных пользователей
             await pipe.hdel(self.ACTIVE_USERS_KEY, player_user_id)
             # удалить данные игрока
-            await pipe.delete(self.PLAYER_KEY.format(player_user_id=player_user_id))
+            await pipe.delete(
+                self.PLAYER_KEY.format(player_user_id=player_user_id)
+            )
 
             await pipe.execute()
 
@@ -195,7 +209,9 @@ class GameRepository:
         if not game_model:
             return False
 
-        game_participants_key = self.GAME_PARTICIPANTS_KEY.format(game_id=game_id)
+        game_participants_key = self.GAME_PARTICIPANTS_KEY.format(
+            game_id=game_id
+        )
         active_user_ids = await self.redis.smembers(game_participants_key)
 
         async with self.redis.pipeline(transaction=True) as pipe:
@@ -209,15 +225,21 @@ class GameRepository:
             await pipe.execute()
 
         deleted_active_users = list(active_user_ids)
-        check = await self.redis.smismember(self.ACTIVE_USERS_KEY, deleted_active_users)
-        logger.info(
-            f"check if deleted:\n{[f'{deleted_active_users[i]} acitve - {bool(check[i])}' for i in range(len(active_user_ids))]}"
+        check = await self.redis.smismember(
+            self.ACTIVE_USERS_KEY, deleted_active_users
         )
+        check_status = [
+            f"{deleted_active_users[i]} acitve - {bool(check[i])}"
+            for i in range(len(active_user_ids))
+        ]
+        logger.info(f"check if deleted:\n{check_status}")
         return True
 
     async def get_player_by_user_id(self, player_user_id: str) -> Player:
         logger.debug(f"get_player_by_user_id {player_user_id}")
-        user = await self._user_repository.get_user_by_id(uuid.UUID(player_user_id))
+        user = await self._user_repository.get_user_by_id(
+            uuid.UUID(player_user_id)
+        )
         if not user:
             raise RepoException(
                 topic=WebSocketTopicEnum.GAME,
@@ -239,7 +261,8 @@ class GameRepository:
                 for status in player_model.status_list.split("|")
             ]
         logger.debug(
-            f"player_status_list {player_status_list} is alive {player_model.is_alive}"
+            f"player_status_list {player_status_list} "
+            f"is alive {player_model.is_alive}"
         )
         role = await self._create_role_from_name(player_model.role_name.value)
         if not role:
@@ -264,7 +287,9 @@ class GameRepository:
         """
         logger.debug(f"_get_game_model_by_id {game_id}")
         # Получаем данные лобби из Hash
-        game_data = await self.redis.hgetall(self.GAME_KEY.format(game_id=game_id))
+        game_data = await self.redis.hgetall(
+            self.GAME_KEY.format(game_id=game_id)
+        )
 
         if not game_data:
             return None
@@ -272,7 +297,9 @@ class GameRepository:
         game_participants_key = self.GAME_PARTICIPANTS_KEY.format(
             game_id=game_data["id"]
         )
-        game_data["player_ids"] = list(await self.redis.smembers(game_participants_key))
+        game_data["player_ids"] = list(
+            await self.redis.smembers(game_participants_key)
+        )
 
         return GameModel.from_redis_data(game_data)
 
@@ -303,7 +330,9 @@ class GameRepository:
             game_status=game.game_status,
             game_stage=game.game_stage,
             winner_team=game.winner_team or TeamEnum.NONE,
-            finish_date=game.finish_date.isoformat() if game.finish_date else "",
+            finish_date=game.finish_date.isoformat()
+            if game.finish_date
+            else "",
         )
         return game_model
 

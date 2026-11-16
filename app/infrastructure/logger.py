@@ -10,7 +10,8 @@ def get_logger(name: str, level: Literal[10, 20, 30, 40, 50]):
     if not logger.handlers:
         handler = colorlog.StreamHandler()
         formatter = colorlog.ColoredFormatter(
-            "%(log_color)s%(levelname)-7s%(reset)s %(asctime)s %(yellow)s%(name)s: %(white)s%(message)s%(reset)s",
+            "%(log_color)s%(levelname)-7s%(reset)s %(asctime)s "
+            "%(yellow)s%(name)s: %(white)s%(message)s%(reset)s",
             log_colors={
                 "DEBUG": "cyan",
                 "INFO": "green",

@@ -81,16 +81,22 @@ class WebSocketManager:
         room_connections = self.active_connections[room_id]
 
         for connection in room_connections.values():
-            await connection.websocket.close(reason="Комната удалена владельцем лобби")
+            await connection.websocket.close(
+                reason="Комната удалена владельцем лобби"
+            )
 
         del self.active_connections[room_id]
 
-    async def send_to_one(self, message: WebSocketMessage, room_id: str, user_id: UUID):
+    async def send_to_one(
+        self, message: WebSocketMessage, room_id: str, user_id: UUID
+    ):
         """
         Отправить message игроку user_id в комнате room_id
         """
         logger.debug("send_to_one")
-        logger.info("\n".join([f"{k}:\t{v}" for k, v in message.model_dump().items()]))
+        logger.info(
+            "\n".join([f"{k}:\t{v}" for k, v in message.model_dump().items()])
+        )
         connection = await self.get_room_connection(room_id, user_id)
         if not connection:
             exc = AppException("Подключения не существует")
@@ -102,7 +108,9 @@ class WebSocketManager:
             await connection.message_queue.put(message)
         else:
             logger.info("send")
-            await connection.websocket.send_text(message.model_dump_json(by_alias=True))
+            await connection.websocket.send_text(
+                message.model_dump_json(by_alias=True)
+            )
 
     async def send_to_many(
         self, message: WebSocketMessage, room_id: str, user_ids: list[UUID]
@@ -153,7 +161,9 @@ class WebSocketManager:
             if not connection.is_callback_set:
                 await self.send_to_one(message, room_id, user_id)
 
-            elif message.message_type in [WebSocketMessageTypeEnum.ACTION_REQUEST]:
+            elif message.message_type in [
+                WebSocketMessageTypeEnum.ACTION_REQUEST
+            ]:
                 connection.last_action_request_message = message
 
             connection.is_disconnected = True
@@ -166,7 +176,9 @@ class WebSocketManager:
                 connection.last_action_request_message, room_id, user_id
             )
 
-    async def clear_last_action_request_message(self, room_id: str, user_id: UUID):
+    async def clear_last_action_request_message(
+        self, room_id: str, user_id: UUID
+    ):
         connecton = await self.get_room_connection(room_id, user_id)
         if not connecton:
             return

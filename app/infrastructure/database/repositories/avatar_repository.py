@@ -54,7 +54,9 @@ class AvatarRepository:
         logger.info(f"upload_avatar {user_id}")
         logger.info(f"file:\n{file.content_type}\n{file.filename}")
         # Генерируем путь
-        file_extension = file.filename.split(".")[-1] if file.filename else "jpg"
+        file_extension = (
+            file.filename.split(".")[-1] if file.filename else "jpg"
+        )
         file_key = f"avatars/{user_id}/avatar.{file_extension}"
 
         # Читаем файл
@@ -66,7 +68,9 @@ class AvatarRepository:
             await self.s3_repository.upload(file_key, content)
             # Сохраняем метаданные в БД
 
-            await self._save_avatar_metadata(user_id, file_key, file, len(content))
+            await self._save_avatar_metadata(
+                user_id, file_key, file, len(content)
+            )
             # Если была старая аватарка - удаляем
 
             await self._delete_old_avatar(user_id, file_key)
@@ -131,7 +135,9 @@ class AvatarRepository:
                     avatar_model.file_key = file_key
                     avatar_model.file_name = file.filename or "avatar"
                     avatar_model.file_size = file_size
-                    avatar_model.content_type = file.content_type or "image/jpeg"
+                    avatar_model.content_type = (
+                        file.content_type or "image/jpeg"
+                    )
                 else:
                     # Создаём новую
                     avatar_model = AvatarModel(

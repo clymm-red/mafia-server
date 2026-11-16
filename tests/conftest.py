@@ -39,7 +39,9 @@ def players(client):
             },
         )
         # 405 — пользователь уже создан в предыдущем прогоне
-        assert register_response.status_code in (200, 405), register_response.text
+        assert register_response.status_code in (200, 405), (
+            register_response.text
+        )
         if register_response.status_code == 200:
             assert register_response.json()["accessToken"]
 

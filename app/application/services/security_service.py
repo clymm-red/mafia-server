@@ -47,7 +47,8 @@ class SecurityService:
         logger.debug("login")
 
         """
-        Authenticate user by his credentials and return a pair of access and refresh tokens
+        Authenticate user by his credentials and return a pair of
+        access and refresh tokens
         """
 
         auth_exc = AppException("Wrong username or password")
@@ -77,7 +78,9 @@ class SecurityService:
         hashed_password = self._get_password_hash(user_data.password)
         user_id = uuid.uuid4()
 
-        user = User(user_id, user_data.username, user_data.email, hashed_password)
+        user = User(
+            user_id, user_data.username, user_data.email, hashed_password
+        )
         updated_user = await self._user_repository.create_user(user)
         token_pair = await self._create_token_pair(updated_user.username)
         return UserCreateResponse(
@@ -115,7 +118,9 @@ class SecurityService:
             if not user:
                 raise AppException("Пользователь не найдён")
 
-            return CurrentUser(id=user.id, username=user.username, email=user.email)
+            return CurrentUser(
+                id=user.id, username=user.username, email=user.email
+            )
 
         except AppException as e:
             exc = TokenException(expected_token="access", message=e.message)
@@ -129,7 +134,11 @@ class SecurityService:
             "sub": str(username),
         }
 
-        access_token = await self._jwt_service.create_access_token(jwt_claims, 1200)
-        refresh_token = await self._jwt_service.create_refresh_token(jwt_claims, 30)
+        access_token = await self._jwt_service.create_access_token(
+            jwt_claims, 1200
+        )
+        refresh_token = await self._jwt_service.create_refresh_token(
+            jwt_claims, 30
+        )
 
         return TokenPair(access_token=access_token, refresh_token=refresh_token)

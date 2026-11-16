@@ -12,7 +12,9 @@ class LobbyModel:
         created_at: str | None = None,
     ):
         self.id = id
-        self.admin_id = str(admin_id) if isinstance(admin_id, UUID) else admin_id
+        self.admin_id = (
+            str(admin_id) if isinstance(admin_id, UUID) else admin_id
+        )
         self.max_players = max_players
         self.participant_ids: list[str] = []
         for user_id in participant_ids:

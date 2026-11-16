@@ -68,7 +68,9 @@ class ApplicationProvider(Provider):
         game_manager: GameManagerService,
         websocket_manager: WebSocketManager,
     ) -> GameWSMessageHandler:
-        return GameWSMessageHandler(game_service, game_manager, websocket_manager)
+        return GameWSMessageHandler(
+            game_service, game_manager, websocket_manager
+        )
 
     @provide(scope=Scope.REQUEST)
     def lobby_ws_handler(

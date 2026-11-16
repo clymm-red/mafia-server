@@ -55,13 +55,17 @@ class InfrastructureProvider(Provider):
             await session.close()
 
     @provide(scope=Scope.REQUEST)
-    async def redis_session(self, factory: RedisClientFactory) -> AsyncGenerator[Redis]:
+    async def redis_session(
+        self, factory: RedisClientFactory
+    ) -> AsyncGenerator[Redis]:
         async with factory.get_connection() as client:
             yield client
 
     # R E P O S I T O R I E S
     @provide(scope=Scope.REQUEST)
-    def user_repository(self, session_factory: DBSessionFactory) -> UserRepository:
+    def user_repository(
+        self, session_factory: DBSessionFactory
+    ) -> UserRepository:
         return UserRepository(session_factory)
 
     # @provide(scope=Scope.REQUEST)

@@ -36,7 +36,8 @@ class DBSessionFactory:
         self.session_maker = async_sessionmaker(self.engine)
 
     async def create_tables(self) -> None:
-        """Создаёт отсутствующие таблицы по метаданным моделей (идемпотентно)."""
+        """Создаёт отсутствующие таблицы по метаданным моделей
+        (идемпотентно)."""
         async with self.engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
             logger.info("DB initiated")
@@ -44,7 +45,9 @@ class DBSessionFactory:
     async def get_session(self) -> AsyncSession:
         """Возращает новую сессию"""
         DBSessionFactory.session_count += 1
-        logger.debug(f"new session open - opened {DBSessionFactory.session_count}")
+        logger.debug(
+            f"new session open - opened {DBSessionFactory.session_count}"
+        )
         return self.session_maker()
 
     async def dispose(self) -> None:

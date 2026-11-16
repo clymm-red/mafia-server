@@ -46,7 +46,9 @@ class LobbyService:
         updated_lobby = await self._lobby_repository.add_participant(
             command.lobby_id, command.user_id
         )
-        logger.info(f"User {command.user_id} подключен к лобби {command.lobby_id}")
+        logger.info(
+            f"User {command.user_id} подключен к лобби {command.lobby_id}"
+        )
         return LobbyResponse(
             status="OK",
             id=updated_lobby.id,
@@ -72,7 +74,9 @@ class LobbyService:
                 admin_id=lobby.admin.id,
                 max_players=lobby.max_players,
                 participants=[
-                    UserResponse(id=user.id, name=user.username, email=user.email)
+                    UserResponse(
+                        id=user.id, name=user.username, email=user.email
+                    )
                     for user in lobby.participants
                 ],
             )
@@ -91,7 +95,9 @@ class LobbyService:
                 admin_id=lobby.admin.id,
                 max_players=lobby.max_players,
                 participants=[
-                    UserResponse(id=user.id, name=user.username, email=user.email)
+                    UserResponse(
+                        id=user.id, name=user.username, email=user.email
+                    )
                     for user in lobby.participants
                 ],
             )

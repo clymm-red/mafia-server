@@ -89,7 +89,9 @@ async def register(
     security_service: FromDishka[SecurityService],
     response: Response,
 ):
-    user_command = UserCreateCommand(request.username, request.email, request.password)
+    user_command = UserCreateCommand(
+        request.username, request.email, request.password
+    )
     try:
         result = await security_service.register_user(user_command)
         set_refresh_token_to_cookie(response, result.refresh_token)
@@ -141,7 +143,9 @@ async def get_current_room(
 async def get_me(
     user: FromDishka[CurrentUser],
 ) -> UserResponse:
-    user_response = UserResponse(id=user.id, name=user.username, email=user.email)
+    user_response = UserResponse(
+        id=user.id, name=user.username, email=user.email
+    )
     print(user_response)
     return user_response
 
@@ -189,7 +193,9 @@ async def set_avatar(
         )
 
     except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+        )
     except Exception as e:
         logger.exception(e)
         raise HTTPException(

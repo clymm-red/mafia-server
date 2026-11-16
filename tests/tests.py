@@ -42,7 +42,9 @@ def test_create_and_join_lobby(client: TestClient, redis_client, players):
             session = stack.enter_context(
                 client.websocket_connect(
                     f"rooms/{lobby_id}",
-                    headers={"authorization": f"Bearer {players[i]['access_token']}"},
+                    headers={
+                        "authorization": f"Bearer {players[i]['access_token']}"
+                    },
                 )
             )
 
@@ -52,7 +54,10 @@ def test_create_and_join_lobby(client: TestClient, redis_client, players):
                 message = json.loads(existing.receive_text())
                 if not lobby_admin:
                     lobby_admin.update(message["payload"]["user"])
-                assert message["messageType"] == WebSocketMessageTypeEnum.USER_CONNECT
+                assert (
+                    message["messageType"]
+                    == WebSocketMessageTypeEnum.USER_CONNECT
+                )
 
         for i in range(len(sessions) - 1, -1, -1):
             sessions[i].send_text(
@@ -76,7 +81,9 @@ def test_create_and_join_lobby(client: TestClient, redis_client, players):
                     sessions[i].receive_json()
 
         deadline = time.monotonic() + 10
-        while time.monotonic() < deadline and redis_client.exists(f"lobby:{lobby_id}"):
+        while time.monotonic() < deadline and redis_client.exists(
+            f"lobby:{lobby_id}"
+        ):
             time.sleep(0.1)
 
         assert not redis_client.exists(f"lobby:{lobby_id}"), (

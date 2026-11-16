@@ -34,20 +34,27 @@ class GameWSMessageHandler:
         self._game_manager = game_manager
         self._websocket_manager = websocket_manager
 
-    async def handle(self, message: WebSocketMessage, current_user: CurrentUser):
+    async def handle(
+        self, message: WebSocketMessage, current_user: CurrentUser
+    ):
         """
         Обрабатывает Websocket Message взависимости от его типа
         """
         if message.message_type == WebSocketMessageTypeEnum.COMMAND:
             ws_command = WSGameCommandPayload(**message.payload.model_dump())
             game = await self._game_service.get_game_by_id(ws_command.room_id)
-            if ws_command.action_type == WebSocketGameCommandActionTypeEnum.ROLE_ACTION:
+            if (
+                ws_command.action_type
+                == WebSocketGameCommandActionTypeEnum.ROLE_ACTION
+            ):
                 try:
                     if game.game_stage != GameStageEnum.NIGHT:
                         raise DomainException(
                             WebSocketTopicEnum.GAME, "Неожиданное сообщение"
                         )
-                    result = await self._game_service.process_role_action(ws_command)
+                    result = await self._game_service.process_role_action(
+                        ws_command
+                    )
                 except DomainException as e:
                     logger.info(
                         f"Domain Exception from user {current_user.id} "
@@ -74,7 +81,10 @@ class GameWSMessageHandler:
                     f"{result if isinstance(result, bool) else ''}",
                 )
 
-            elif ws_command.action_type == WebSocketGameCommandActionTypeEnum.VOTE:
+            elif (
+                ws_command.action_type
+                == WebSocketGameCommandActionTypeEnum.VOTE
+            ):
                 try:
                     if game.game_stage != GameStageEnum.DAY_VOTE:
                         raise DomainException(
@@ -112,13 +122,22 @@ class GameWSMessageHandler:
                 )
                 return
 
-            elif ws_command.action_type == WebSocketGameCommandActionTypeEnum.END_TALK:
-                if game.game_stage in (GameStageEnum.DAY_TALK, GameStageEnum.DAY_INTRO):
+            elif (
+                ws_command.action_type
+                == WebSocketGameCommandActionTypeEnum.END_TALK
+            ):
+                if game.game_stage in (
+                    GameStageEnum.DAY_TALK,
+                    GameStageEnum.DAY_INTRO,
+                ):
                     await self._game_manager.set_event(
                         ws_command.room_id, ws_command.action_type
                     )
 
-            elif ws_command.action_type == WebSocketGameCommandActionTypeEnum.LEAVE:
+            elif (
+                ws_command.action_type
+                == WebSocketGameCommandActionTypeEnum.LEAVE
+            ):
                 await self._game_manager.set_event(
                     ws_command.room_id,
                     f"{ws_command.action_type}|{str(current_user.id)}",

@@ -27,20 +27,24 @@ class RoleDistributionService:
         self, users: list[User], role_set: list[RoleEnum]
     ):
         """
-        Получить список Player из списка User, с рапределёнными ролями из списка названий ролей
+        Получить список Player из списка User, с рапределёнными ролями
+        из списка названий ролей
         """
         logger.debug(f"create_players_with_roles ({len(users)}, {role_set}")
-        role_names: list[RoleEnum] = await self._get_recomended_role_names_by_list(
-            len(users), role_set
-        )
+        role_names: list[
+            RoleEnum
+        ] = await self._get_recomended_role_names_by_list(len(users), role_set)
         logger.debug(role_names)
 
-        roles_to_distribute: list[Role] = await self._create_role_list(role_names)
+        roles_to_distribute: list[Role] = await self._create_role_list(
+            role_names
+        )
         logger.debug(roles_to_distribute)
         if len(users) != len(roles_to_distribute):
             exc = DomainException(
                 WebSocketTopicEnum.GAME,
-                f"Количество игроков не соотвествует количеству ролей - {len(users)}",
+                "Количество игроков не соотвествует количеству ролей - "
+                f"{len(users)}",
             )
             logger.error(exc)
             raise exc
@@ -68,14 +72,17 @@ class RoleDistributionService:
         if player_count < 5:
             exc = DomainException(
                 WebSocketTopicEnum.GAME,
-                f"Количество игроков не соотвествует количеству ролей - {player_count}",
+                "Количество игроков не соотвествует количеству ролей - "
+                f"{player_count}",
             )
             logger.error(exc)
             raise exc
         mafia_number = int(player_count // 3.1)
         logger.debug(mafia_number)
         # add mafia members
-        result_role_list: list[RoleEnum] = [RoleEnum.MAFIA_MEMBER] * mafia_number
+        result_role_list: list[RoleEnum] = [
+            RoleEnum.MAFIA_MEMBER
+        ] * mafia_number
         logger.debug(result_role_list)
         players_remaining -= mafia_number
         # replace mafia member by don (if needed)
@@ -97,7 +104,9 @@ class RoleDistributionService:
         logger.debug(result_role_list)
         return result_role_list
 
-    async def _create_role_list(self, role_name_list: list[RoleEnum]) -> list[Role]:
+    async def _create_role_list(
+        self, role_name_list: list[RoleEnum]
+    ) -> list[Role]:
         logger.debug("_create_role_list")
 
         available_role_names = [role.__name__ for role in Role.__subclasses__()]
@@ -108,7 +117,9 @@ class RoleDistributionService:
                 for role_name in role_name_list
             ]
         ):
-            raise DomainException(WebSocketTopicEnum.GAME, "Неизвестная роль в списке")
+            raise DomainException(
+                WebSocketTopicEnum.GAME, "Неизвестная роль в списке"
+            )
         roles = []
         for role_name in role_name_list:
             roles.append(await self._create_role_from_name(role_name))

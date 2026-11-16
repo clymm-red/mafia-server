@@ -39,7 +39,9 @@ class LobbyRepository:
         # Время жизни игры
         self.LOBBY_TTL = 1200
 
-    async def create_lobby(self, admin_id: UUID, max_players: int = 10) -> Lobby:
+    async def create_lobby(
+        self, admin_id: UUID, max_players: int = 10
+    ) -> Lobby:
         """
         Создаёт новое лобби
 
@@ -155,7 +157,8 @@ class LobbyRepository:
                 existing_lobby = await self.get_lobby_by_id(lobby_id)
                 if existing_lobby:
                     logger.debug(
-                        f"user {user_id} already in lobby {lobby_id} -> reconnect"
+                        f"user {user_id} already in lobby {lobby_id} "
+                        "-> reconnect"
                     )
                     return existing_lobby
             raise UserAlredyInLobbyException(
@@ -317,7 +320,9 @@ class LobbyRepository:
             # Удаляем данные лобби
             await pipe.delete(self.LOBBY_KEY.format(lobby_id=lobby_id))
             # Удалить данные об участниках лобби
-            await pipe.delete(self.LOBBY_PARTICIPANTS_KEY.format(lobby_id=lobby_id))
+            await pipe.delete(
+                self.LOBBY_PARTICIPANTS_KEY.format(lobby_id=lobby_id)
+            )
             await pipe.execute()
 
     async def prepare_for_game(self, lobby_id: str):
@@ -327,7 +332,9 @@ class LobbyRepository:
         await self._delete_lobby_data(lobby_id)
         pass
 
-    async def update_lobby_max_players(self, lobby_id: str, max_players: int) -> None:
+    async def update_lobby_max_players(
+        self, lobby_id: str, max_players: int
+    ) -> None:
         """
         Обновление максимального количества участников Lobby.
 
@@ -357,7 +364,8 @@ class LobbyRepository:
 
     async def get_user_active_lobby(self, user_id: UUID) -> Lobby | None:
         """
-        Внутренний метод: Получает Lobby ID в котором находится User c указанным ID
+        Внутренний метод: Получает Lobby ID в котором находится User
+        c указанным ID
 
         Args:
             user_id (int): User ID
@@ -375,7 +383,8 @@ class LobbyRepository:
 
     async def _get_user_active_lobby_id(self, user_id: UUID) -> str | None:
         """
-        Внутренний метод: Получает Lobby ID в котором находится User c указанным ID
+        Внутренний метод: Получает Lobby ID в котором находится User
+        c указанным ID
 
         Args:
             user_id (int): User ID
@@ -407,7 +416,9 @@ class LobbyRepository:
             lobby_model (LobbyModel / None): Модель Lobby
         """
         logger.debug(f"_get_lobby_model_by_id ({lobby_id})")
-        lobby_data = await self.redis.hgetall(self.LOBBY_KEY.format(lobby_id=lobby_id))
+        lobby_data = await self.redis.hgetall(
+            self.LOBBY_KEY.format(lobby_id=lobby_id)
+        )
         if not lobby_data:
             logger.warning(lobby_data)
             return None
@@ -452,7 +463,9 @@ class LobbyRepository:
         logger.debug([f"{user.id} {user.username}" for user in participants])
         logger.debug(lobby_model.admin_id)
         admin_list = [
-            user for user in participants if str(user.id) == lobby_model.admin_id
+            user
+            for user in participants
+            if str(user.id) == lobby_model.admin_id
         ]
         logger.debug([f"{user.id} {user.username}" for user in admin_list])
 

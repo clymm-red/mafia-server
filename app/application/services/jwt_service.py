@@ -55,7 +55,9 @@ class JWTService:
     async def decode_token(self, token: str):
         logger.debug("decode_token")
         try:
-            return jwt.decode(token, self._secret_key, algorithms=[self._algorithm])
+            return jwt.decode(
+                token, self._secret_key, algorithms=[self._algorithm]
+            )
         except jwt.ExpiredSignatureError as e:
             logger.debug(e)
             raise AppException(message="Expired")

@@ -1,7 +1,9 @@
 from uuid import UUID
 
 from domain.enums import WebSocketGameCommandActionTypeEnum
-from infrastructure.websocket.dtos.base_websocket_message import BaseWebSocketMessage
+from infrastructure.websocket.dtos.base_websocket_message import (
+    BaseWebSocketMessage,
+)
 
 
 class WSGameCommandPayload(BaseWebSocketMessage):

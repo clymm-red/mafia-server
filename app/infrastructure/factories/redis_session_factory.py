@@ -51,9 +51,13 @@ class RedisClientFactory:
 
         try:
             yield client
-            logger.debug(f"Redis connection #{self._operation_count} used successfully")
+            logger.debug(
+                f"Redis connection #{self._operation_count} used successfully"
+            )
         except Exception as e:
-            logger.error(f"Redis connection #{self._operation_count} failed: {e}")
+            logger.error(
+                f"Redis connection #{self._operation_count} failed: {e}"
+            )
             raise
         finally:
             logger.debug(f"Redis connection #{self._operation_count} released")

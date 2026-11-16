@@ -77,13 +77,17 @@ class UserRepository:
                 logger.error(e)
                 raise ValueError(e)
 
-    async def _get_user_model_by_username(self, username: str) -> UserModel | None:
+    async def _get_user_model_by_username(
+        self, username: str
+    ) -> UserModel | None:
         logger.debug("_get_user_model_by_username")
         session = await self.session_factory.get_session()
         async with session:
             try:
                 logger.debug("async with session_factory()")
-                statement = select(UserModel).where(UserModel.username == username)
+                statement = select(UserModel).where(
+                    UserModel.username == username
+                )
                 result = await session.execute(statement)
                 user_model = result.scalar_one_or_none()
                 return user_model

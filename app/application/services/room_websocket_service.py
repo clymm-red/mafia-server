@@ -42,7 +42,9 @@ class RoomWebSocketService:
         self, room_id: str, current_user: CurrentUser, websocket: WebSocket
     ):
         logger.debug("subscribe_room_webscoket")
-        await self._websocket_manager.connect(websocket, room_id, current_user.id)
+        await self._websocket_manager.connect(
+            websocket, room_id, current_user.id
+        )
 
         lobby: LobbyResponse = await self._lobby_service.join_lobby(
             LobbyJoinCommand(room_id, current_user.id)
@@ -50,7 +52,9 @@ class RoomWebSocketService:
 
         message = WebSocketMessage(
             message_type=WebSocketMessageTypeEnum.USER_CONNECT,
-            topic=WebSocketTopicEnum.LOBBY if lobby else WebSocketTopicEnum.GAME,
+            topic=WebSocketTopicEnum.LOBBY
+            if lobby
+            else WebSocketTopicEnum.GAME,
             timestamp=datetime.now().isoformat(),
             payload=WSUserConnectionMessagePayload(
                 text=f"User {current_user.username} подключился к комнате",
@@ -64,9 +68,13 @@ class RoomWebSocketService:
         )
         await self._websocket_manager.send_broadcast(message, room_id)
 
-    async def unsubscribe_room_webscoket(self, room_id: str, current_user: CurrentUser):
+    async def unsubscribe_room_webscoket(
+        self, room_id: str, current_user: CurrentUser
+    ):
         logger.debug("unsubscribe_room_webscoket")
-        await self._websocket_manager.handle_disconnect(room_id, current_user.id)
+        await self._websocket_manager.handle_disconnect(
+            room_id, current_user.id
+        )
 
         user_joined_room = await self._user_service.get_user_joined_room(
             current_user.id
@@ -111,7 +119,9 @@ class RoomWebSocketService:
         logger.debug("handle_message")
         match message.topic:
             case WebSocketTopicEnum.LOBBY:
-                await self._lobby_websocket_handler.handle(message, current_user)
+                await self._lobby_websocket_handler.handle(
+                    message, current_user
+                )
 
             case WebSocketTopicEnum.GAME:
                 await self._game_websocket_handler.handle(message, current_user)

@@ -38,11 +38,14 @@ class GameService:
         Создаёт игру из лобби, сохраняет её в лобби и возвращает её
         """
         logger.debug("create_game_from_lobby")
+        players = (
+            await self._role_distribution_service.create_players_with_roles(
+                lobby.participants, role_set
+            )
+        )
         game = Game(
             id=lobby.id,
-            players=await self._role_distribution_service.create_players_with_roles(
-                lobby.participants, role_set
-            ),
+            players=players,
             admin=lobby.admin,
         )
 
@@ -67,7 +70,8 @@ class GameService:
         game = await self.get_game_by_id(game_command.room_id)
         if not game_command.target_id:
             raise DomainException(
-                WebSocketTopicEnum.GAME, "WebSocketGameCommand missing target_id"
+                WebSocketTopicEnum.GAME,
+                "WebSocketGameCommand missing target_id",
             )
         result = await game.process_role_action(
             game_command.actor_id, game_command.target_id
@@ -83,7 +87,8 @@ class GameService:
         game = await self.get_game_by_id(game_command.room_id)
         if not game_command.target_id:
             raise DomainException(
-                WebSocketTopicEnum.GAME, "WebSocketGameCommand missing target_id"
+                WebSocketTopicEnum.GAME,
+                "WebSocketGameCommand missing target_id",
             )
         await game.process_vote(game_command.actor_id, game_command.target_id)
         return await self.save_game(game)
@@ -117,8 +122,12 @@ class GameService:
                 action_order[player.role.role_name] += [player]
 
         action_order.pop(RoleEnum.CITIZEN)
+        players_info = [
+            f"{player.user.username} {player.role.role_name.value}"
+            for player in game.players
+        ]
         logger.debug(
-            f"get_night_action_player_groups ({game.id}) - {[f'{player.user.username} {player.role.role_name.value}' for player in game.players]}"
+            f"get_night_action_player_groups ({game.id}) - {players_info}"
         )
 
         return action_order
@@ -140,7 +149,8 @@ class GameService:
             game.round_count += 1
             logger.debug(f"round count incremented {game.round_count}")
         logger.debug(
-            f"############## proceed_next_stage ({game.id}) from {prev_stage} to {game.game_stage}"
+            f"############## proceed_next_stage ({game.id}) "
+            f"from {prev_stage} to {game.game_stage}"
         )
         await self.save_game(game)
         return game
@@ -156,7 +166,9 @@ class GameService:
         most_voted: list[Player] = []
         max_vote_count = 0
         for player in game.players:
-            logger.debug(f"watching {player.user.username} votes: {player.votes_count}")
+            logger.debug(
+                f"watching {player.user.username} votes: {player.votes_count}"
+            )
             if not player.is_alive:
                 continue
             if int(player.votes_count) > 0:
