@@ -488,7 +488,9 @@ class LobbyRepository:
             lobby_model (LobbyModel): Модель Lobby
         """
         logger.debug("_domain_to_model")
-        participant_ids = [user.id for user in lobby.participants if user.id]
+        participant_ids: list[str | UUID] = [
+            user.id for user in lobby.participants if user.id
+        ]
         return LobbyModel(
             lobby.id,
             str(lobby.admin.id),

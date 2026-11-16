@@ -1,3 +1,5 @@
+from typing import Any
+
 from domain.enums import RoleEnum
 
 
@@ -32,7 +34,7 @@ class PlayerModel:
         }
 
     @classmethod
-    def from_redis_data(cls, data: dict[str, any]):
+    def from_redis_data(cls, data: dict[str, Any]):
         return cls(
             user_id=data["user_id"],
             is_alive=data["is_alive"],

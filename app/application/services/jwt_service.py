@@ -1,4 +1,5 @@
 import uuid
+from typing import Any
 from datetime import UTC, datetime, timedelta
 
 import jwt
@@ -17,7 +18,7 @@ class JWTService:
         self._algorithm = env.jwt.algorithm
 
     async def create_access_token(
-        self, jwt_claims: dict[str, any], expires_in_minutes: int
+        self, jwt_claims: dict[str, Any], expires_in_minutes: int
     ):
         logger.debug("create_access_token")
         payload = jwt_claims.copy()
@@ -35,7 +36,7 @@ class JWTService:
         return jwt_token
 
     async def create_refresh_token(
-        self, jwt_claims: dict[str, any], expires_in_days: int
+        self, jwt_claims: dict[str, Any], expires_in_days: int
     ):
         logger.debug("create_refresh_token")
         payload = jwt_claims.copy()

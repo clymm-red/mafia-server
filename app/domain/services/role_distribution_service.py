@@ -128,7 +128,7 @@ class RoleDistributionService:
         logger.debug(roles)
         return roles
 
-    async def _create_role_from_name(self, role_name: str) -> Role | None:
+    async def _create_role_from_name(self, role_name: str) -> Role:
         logger.debug(f"_create_role_from_name ({role_name})")
 
         match role_name:
@@ -144,3 +144,7 @@ class RoleDistributionService:
                 return Prostitute()
             case RoleEnum.DOCTOR.value:
                 return Doctor()
+            case _:
+                raise DomainException(
+                    WebSocketTopicEnum.GAME, "Неизвестная роль в списке"
+                )

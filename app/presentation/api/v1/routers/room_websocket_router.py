@@ -1,3 +1,4 @@
+from typing import Any
 from datetime import datetime
 
 from dishka import FromDishka, AsyncContainer
@@ -50,7 +51,7 @@ async def room_websocket(
         subscribed = True
 
         while websocket.application_state == WebSocketState.CONNECTED:
-            raw_message: dict[str, any] = await websocket.receive_json()
+            raw_message: dict[str, Any] = await websocket.receive_json()
             logger.debug(f"{raw_message} {type(raw_message)}")
             ws_message = WebSocketMessage(**raw_message)
             try:

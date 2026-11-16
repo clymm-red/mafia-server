@@ -1,4 +1,5 @@
 from uuid import UUID
+from typing import Any
 from datetime import datetime
 
 from domain.enums import TeamEnum, GameStageEnum, GameStatusEnum
@@ -47,7 +48,7 @@ class GameModel:
         }
 
     @classmethod
-    def from_redis_data(cls, data: dict[str, any]):
+    def from_redis_data(cls, data: dict[str, Any]):
         return cls(
             id=data["id"],
             player_ids=data["player_ids"],
