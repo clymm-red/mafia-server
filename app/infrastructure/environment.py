@@ -1,7 +1,7 @@
 import sys
 import logging
 
-from pydantic import RedisDsn, ValidationError
+from pydantic import ValidationError
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from infrastructure.logger import get_logger
@@ -16,7 +16,7 @@ class BaseEnv(BaseSettings):
 class Redis(BaseEnv):
     """Конфигурация Redis"""
 
-    url: RedisDsn
+    url: str
 
     model_config = SettingsConfigDict(env_prefix="REDIS_")
 
