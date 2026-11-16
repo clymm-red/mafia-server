@@ -597,14 +597,15 @@ class GameManagerService:
                     f"Игрок {player.user.username} закончил "
                     "голосовать (timeout)"
                 )
-                possible_targets = []
-                for candidate in game.players:
+                possible_targets = [
+                    candidate
+                    for candidate in game.players
                     if (
                         candidate.is_alive
                         and not candidate[PlayerStatusEnum.UNTARGETABLE]
                         and candidate.user.id != player.user.id
-                    ):
-                        possible_targets.append(candidate)
+                    )
+                ]
 
                 random_target = random.choice(possible_targets)
                 candidate_id = random_target.user.id

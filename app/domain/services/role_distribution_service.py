@@ -50,9 +50,10 @@ class RoleDistributionService:
             raise exc
 
         shuffle(roles_to_distribute)
-        players = []
-        for i in range(len(users)):
-            players.append(Player(users[i], roles_to_distribute[i], []))
+        players = [
+            Player(user, role, [])
+            for user, role in zip(users, roles_to_distribute)
+        ]
 
         return players
 
@@ -120,9 +121,10 @@ class RoleDistributionService:
             raise DomainException(
                 WebSocketTopicEnum.GAME, "Неизвестная роль в списке"
             )
-        roles = []
-        for role_name in role_name_list:
-            roles.append(await self._create_role_from_name(role_name))
+        roles = [
+            await self._create_role_from_name(role_name)
+            for role_name in role_name_list
+        ]
         logger.debug(roles)
         return roles
 
