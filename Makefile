@@ -1,3 +1,4 @@
+.SILENT:
 .PHONY: dev lint fmt typecheck fix test
 
 all: typecheck lint fmt
