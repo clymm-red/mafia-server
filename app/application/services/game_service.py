@@ -6,10 +6,8 @@ from domain.enums import RoleEnum, GameStageEnum, WebSocketTopicEnum
 from domain.entities import Game, Lobby, Player
 from domain.services import RoleDistributionService
 from domain.exceptions import DomainException, RoomNotFoundException
+from application.commands import GameCommand
 from infrastructure.logger_config import get_logger
-from infrastructure.websocket.dtos import (
-    WSGameCommandPayload,
-)
 from infrastructure.redis.repositories import GameRepository, LobbyRepository
 
 
@@ -60,9 +58,7 @@ class GameService:
         logger.info(f"save_game {game.id}")
         return await self._game_repository.save_game(game)
 
-    async def process_role_action(
-        self, game_command: WSGameCommandPayload
-    ) -> bool | None:
+    async def process_role_action(self, game_command: GameCommand) -> bool | None:
         """
         Обрабатывает ночной ход игрока
         """
@@ -79,7 +75,7 @@ class GameService:
         await self.save_game(game)
         return result if isinstance(result, bool) else None
 
-    async def process_vote(self, game_command: WSGameCommandPayload) -> Game:
+    async def process_vote(self, game_command: GameCommand) -> Game:
         """
         Обрабатывает голос игрока
         """

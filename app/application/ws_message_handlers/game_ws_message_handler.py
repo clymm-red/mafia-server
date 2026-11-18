@@ -9,9 +9,10 @@ from domain.enums import (
     WebSocketGameCommandActionTypeEnum,
 )
 from domain.exceptions import DomainException, PlayerDisabledException
+from application.commands import GameCommand
 from application.services import GameService, GameManagerService
-from infrastructure.logger_config import get_logger
 from infrastructure.websocket import WebSocketManager
+from infrastructure.logger_config import get_logger
 from infrastructure.websocket.dtos import (
     WebSocketMessage,
     WSGameInfoPayload,
@@ -42,7 +43,14 @@ class GameWSMessageHandler:
         """
         if message.message_type == WebSocketMessageTypeEnum.COMMAND:
             ws_command = WSGameCommandPayload(**message.payload.model_dump())
+            game_command = GameCommand(
+                actor_id=current_user.id,
+                room_id=ws_command.room_id,
+                target_id=ws_command.target_id,
+            )
             game = await self._game_service.get_game_by_id(ws_command.room_id)
+
+            # R O L E   A C T I O N
             if (
                 ws_command.action_type
                 == WebSocketGameCommandActionTypeEnum.ROLE_ACTION
@@ -53,12 +61,12 @@ class GameWSMessageHandler:
                             WebSocketTopicEnum.GAME, "Неожиданное сообщение"
                         )
                     result = await self._game_service.process_role_action(
-                        ws_command
+                        game_command
                     )
                 except DomainException as e:
                     logger.info(
                         f"Domain Exception from user {current_user.id} "
-                        "in room {websocket_command.room_id}: {e.args}"
+                        f"in room {ws_command.room_id}: {e.args}"
                     )
                     await self._websocket_manager.send_to_one(
                         WebSocketMessage(
@@ -72,7 +80,6 @@ class GameWSMessageHandler:
                         ws_command.room_id,
                         current_user.id,
                     )
-                    logger.info("Сообщение об ошибке отправлено")
                     result = None
 
                 await self._game_manager.set_event(
@@ -81,6 +88,7 @@ class GameWSMessageHandler:
                     f"{result if isinstance(result, bool) else ''}",
                 )
 
+            # V O T E
             elif (
                 ws_command.action_type
                 == WebSocketGameCommandActionTypeEnum.VOTE
@@ -90,7 +98,7 @@ class GameWSMessageHandler:
                         raise DomainException(
                             WebSocketTopicEnum.GAME, "Неожиданное сообщение"
                         )
-                    await self._game_service.process_vote(ws_command)
+                    await self._game_service.process_vote(game_command)
                     target_id = str(ws_command.target_id)
 
                 except DomainException as e:
@@ -122,6 +130,7 @@ class GameWSMessageHandler:
                 )
                 return
 
+            # E N D   T A L K
             elif (
                 ws_command.action_type
                 == WebSocketGameCommandActionTypeEnum.END_TALK
