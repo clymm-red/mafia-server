@@ -6,8 +6,8 @@ from fastapi import WebSocket
 from domain.enums import WebSocketTopicEnum, WebSocketMessageTypeEnum
 from application.commands import LobbyJoinCommand
 from application.services import UserService, LobbyService
-from infrastructure.logger import get_logger
 from infrastructure.websocket import WebSocketManager
+from infrastructure.logger_config import get_logger
 from infrastructure.websocket.dtos import (
     WebSocketMessage,
     WSUserConnectionMessagePayload,
@@ -20,7 +20,7 @@ from presentation.api.v1.dtos.requests import CurrentUser
 from presentation.api.v1.dtos.responses import UserResponse, LobbyResponse
 
 
-logger = get_logger(f"{__name__}.RoomWebSocketService", 20)
+logger = get_logger(f"{__name__}.RoomWebSocketService")
 
 
 class RoomWebSocketService:

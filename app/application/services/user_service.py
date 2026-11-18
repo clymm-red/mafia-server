@@ -3,13 +3,13 @@ from uuid import UUID
 from dishka import FromDishka
 from fastapi import UploadFile
 
-from infrastructure.logger import get_logger
+from infrastructure.logger_config import get_logger
 from infrastructure.redis.repositories import GameRepository, LobbyRepository
 from infrastructure.database.repositories import UserRepository
 from presentation.api.v1.dtos.responses.room_response import RoomResponse
 
 
-logger = get_logger(f"{__name__}.UserService", 20)
+logger = get_logger(f"{__name__}.UserService")
 
 
 class UserService:

@@ -5,12 +5,12 @@ from sqlalchemy import select
 
 from domain.exceptions import RepoException
 from domain.entities.user import User
-from infrastructure.logger import get_logger
 from infrastructure.factories import DBSessionFactory
+from infrastructure.logger_config import get_logger
 from infrastructure.database.models.user_model import UserModel
 
 
-logger = get_logger(f"{__name__}.UserRepository", 20)
+logger = get_logger(f"{__name__}.UserRepository")
 
 
 class UserRepository:

@@ -20,8 +20,8 @@ from domain.exceptions import (
     UnexpectedWebSocketMessageActionType,
 )
 from application.services import GameService
-from infrastructure.logger import get_logger
 from infrastructure.websocket import WebSocketManager
+from infrastructure.logger_config import get_logger
 from infrastructure.websocket.dtos import (
     WebSocketMessage,
     WSGameDataPayload,
@@ -33,7 +33,7 @@ from infrastructure.websocket.dtos import (
 from presentation.api.v1.dtos.responses import PlayerResponse
 
 
-logger = get_logger(f"{__name__}.GameManagerService", 20)
+logger = get_logger(f"{__name__}.GameManagerService")
 
 
 class GameManagerService:

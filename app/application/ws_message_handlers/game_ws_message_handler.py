@@ -10,7 +10,7 @@ from domain.enums import (
 )
 from domain.exceptions import DomainException, PlayerDisabledException
 from application.services import GameService, GameManagerService
-from infrastructure.logger import get_logger
+from infrastructure.logger_config import get_logger
 from infrastructure.websocket import WebSocketManager
 from infrastructure.websocket.dtos import (
     WebSocketMessage,
@@ -20,7 +20,7 @@ from infrastructure.websocket.dtos import (
 from presentation.api.v1.dtos.requests import CurrentUser
 
 
-logger = get_logger(f"{__name__}.GameWebSocketMessageHandler", 20)
+logger = get_logger(f"{__name__}.GameWebSocketMessageHandler")
 
 
 class GameWSMessageHandler:

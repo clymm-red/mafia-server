@@ -9,10 +9,10 @@ from domain.exceptions import (
     VotedDisabledTargetException,
 )
 from domain.entities.user import User
-from infrastructure.logger import get_logger
+from infrastructure.logger_config import get_logger
 
 
-logger = get_logger(__name__, 20)
+logger = get_logger(__name__)
 
 
 class Player:

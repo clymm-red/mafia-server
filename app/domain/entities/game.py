@@ -11,11 +11,11 @@ from domain.enums import (
 )
 from domain.exceptions import DomainException
 from domain.entities.user import User
-from infrastructure.logger import get_logger
 from domain.entities.player import Player
+from infrastructure.logger_config import get_logger
 
 
-logger = get_logger(__name__, 20)
+logger = get_logger(__name__)
 
 
 class Game:

@@ -6,12 +6,12 @@ from fastapi import WebSocket
 
 from domain.enums import WebSocketMessageTypeEnum
 from domain.exceptions import AppException
-from infrastructure.logger import get_logger
+from infrastructure.logger_config import get_logger
 from infrastructure.websocket.dtos import WebSocketMessage
 from infrastructure.websocket.room_connection import RoomConnection
 
 
-logger = get_logger(f"{__name__}.WebSocketManager", 20)
+logger = get_logger(f"{__name__}.WebSocketManager")
 
 
 class WebSocketManager:

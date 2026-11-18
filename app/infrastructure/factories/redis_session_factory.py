@@ -3,11 +3,11 @@ from collections.abc import AsyncGenerator
 
 from redis.asyncio import Redis, from_url
 
-from infrastructure.logger import get_logger
 from infrastructure.environment import env
+from infrastructure.logger_config import get_logger
 
 
-logger = get_logger(f"{__name__}.RedisClientFactory", 20)
+logger = get_logger(f"{__name__}.RedisClientFactory")
 
 
 class RedisClientFactory:

@@ -6,7 +6,7 @@ from application.commands import (
     LobbyLeaveCommand,
     LobbyCreateCommand,
 )
-from infrastructure.logger import get_logger
+from infrastructure.logger_config import get_logger
 from infrastructure.redis.repositories import (
     LobbyRepository,
 )
@@ -16,7 +16,7 @@ from presentation.api.v1.dtos.responses.lobby_response import (
 )
 
 
-logger = get_logger(f"{__name__}.LobbyService", 20)
+logger = get_logger(f"{__name__}.LobbyService")
 
 
 class LobbyService:

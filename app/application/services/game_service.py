@@ -6,7 +6,7 @@ from domain.enums import RoleEnum, GameStageEnum, WebSocketTopicEnum
 from domain.entities import Game, Lobby, Player
 from domain.services import RoleDistributionService
 from domain.exceptions import DomainException, RoomNotFoundException
-from infrastructure.logger import get_logger
+from infrastructure.logger_config import get_logger
 from infrastructure.websocket.dtos import (
     WSGameCommandPayload,
 )

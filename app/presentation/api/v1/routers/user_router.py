@@ -10,7 +10,7 @@ from dishka.integrations.fastapi import inject
 from application.queries import UserAuthQuery
 from application.commands import UserCreateCommand
 from application.services import UserService, SecurityService
-from infrastructure.logger import get_logger
+from infrastructure.logger_config import get_logger
 from presentation.api.v1.dtos.requests import UserCreate, CurrentUser
 from presentation.api.v1.dtos.responses import (
     RoomResponse,

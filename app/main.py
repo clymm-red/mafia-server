@@ -1,4 +1,3 @@
-import logging
 from contextlib import asynccontextmanager
 
 from dishka import make_async_container
@@ -16,9 +15,9 @@ from domain.exceptions import (
     DomainException,
 )
 from application.providers import ApplicationProvider
-from infrastructure.logger import get_logger
 from presentation.providers import AuthProvider
 from infrastructure.providers import InfrastructureProvider
+from infrastructure.logger_config import get_logger
 from presentation.api.v1.routers.user_router import user_router
 from presentation.api.v1.routers.lobby_router import lobby_router
 from infrastructure.factories.db_session_factory import DBSessionFactory
@@ -27,7 +26,7 @@ from presentation.api.v1.routers.room_websocket_router import (
 )
 
 
-logger = get_logger(__name__, logging.DEBUG)
+logger = get_logger(__name__, 10)
 
 
 @asynccontextmanager

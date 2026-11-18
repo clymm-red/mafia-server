@@ -3,7 +3,6 @@ from random import shuffle
 from domain.enums import RoleEnum, WebSocketTopicEnum
 from domain.exceptions import DomainException
 from domain.entities.user import User
-from infrastructure.logger import get_logger
 from domain.entities.player import (
     Role,
     Doctor,
@@ -14,6 +13,7 @@ from domain.entities.player import (
     Prostitute,
     MafiaMember,
 )
+from infrastructure.logger_config import get_logger
 
 
 logger = get_logger(f"{__name__}.RoleDistributionService", 30)

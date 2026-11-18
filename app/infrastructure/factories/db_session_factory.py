@@ -5,8 +5,8 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from infrastructure.logger import get_logger
 from infrastructure.environment import env
+from infrastructure.logger_config import get_logger
 from infrastructure.database.models import Base
 
 
@@ -24,7 +24,7 @@ def get_db_url():
     return db_url
 
 
-logger = get_logger(f"{__name__}.DBSessionFactory", 20)
+logger = get_logger(f"{__name__}.DBSessionFactory")
 
 
 class DBSessionFactory:

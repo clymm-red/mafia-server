@@ -14,12 +14,12 @@ from domain.exceptions import (
     ActionAlreadyPerformedException,
 )
 from domain.entities.lobby import Lobby
-from infrastructure.logger import get_logger
+from infrastructure.logger_config import get_logger
 from infrastructure.database.repositories import UserRepository
 from infrastructure.redis.models.lobby_model import LobbyModel
 
 
-logger = get_logger(f"{__name__}.LobbyRepository", 20)
+logger = get_logger(f"{__name__}.LobbyRepository")
 
 
 class LobbyRepository:

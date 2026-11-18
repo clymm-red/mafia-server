@@ -8,8 +8,8 @@ from domain.enums import (
 from domain.exceptions import DomainException, RoomNotFoundException
 from application.commands import LobbyLeaveCommand
 from application.services import GameService, GameManagerService
-from infrastructure.logger import get_logger
 from infrastructure.websocket import WebSocketManager
+from infrastructure.logger_config import get_logger
 from infrastructure.websocket.dtos import (
     WebSocketMessage,
     WSLobbyCommandPayload,
@@ -18,7 +18,7 @@ from presentation.api.v1.dtos.requests import CurrentUser
 from application.services.lobby_service import LobbyService
 
 
-logger = get_logger(f"{__name__}.LobbyWebSockeMessageHandler", 20)
+logger = get_logger(f"{__name__}.LobbyWebSockeMessageHandler")
 
 
 class LobbyWSMessageHandler:
