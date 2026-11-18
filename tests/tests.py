@@ -63,7 +63,7 @@ def test_create_and_join_lobby(client: TestClient, redis_client, players):
             sessions[i].send_text(
                 WebSocketMessage(
                     message_type=WebSocketMessageTypeEnum.COMMAND,
-                    topic=(WebSocketTopicEnum.LOBBY),
+                    topic=WebSocketTopicEnum.LOBBY,
                     timestamp=datetime.now().isoformat(),
                     payload=WSLobbyCommandPayload(
                         action_type=WebSocketLobbyCommandTypeEnum.LEAVE,
