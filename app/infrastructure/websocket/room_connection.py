@@ -4,7 +4,7 @@ from collections.abc import Callable, Awaitable
 
 from fastapi import WebSocket
 
-from infrastructure.websocket.dtos.websocket_message import WebSocketMessage
+from infrastructure.websocket.messages.websocket_message import WebSocketMessage
 
 
 class RoomConnection:

@@ -10,7 +10,7 @@ from application.commands import LobbyLeaveCommand
 from application.services import GameService, GameManagerService
 from infrastructure.websocket import WebSocketManager
 from infrastructure.logger_config import get_logger
-from infrastructure.websocket.dtos import (
+from infrastructure.websocket.messages import (
     WebSocketMessage,
     WSLobbyCommandPayload,
 )

@@ -8,13 +8,13 @@ from application.commands import LobbyJoinCommand
 from application.services import UserService, LobbyService
 from infrastructure.websocket import WebSocketManager
 from infrastructure.logger_config import get_logger
-from infrastructure.websocket.dtos import (
-    WebSocketMessage,
-    WSUserConnectionMessagePayload,
-)
 from application.ws_message_handlers import (
     GameWSMessageHandler,
     LobbyWSMessageHandler,
+)
+from infrastructure.websocket.messages import (
+    WebSocketMessage,
+    WSUserConnectionMessagePayload,
 )
 from presentation.api.v1.dtos.requests import CurrentUser
 from presentation.api.v1.dtos.responses import UserResponse, LobbyResponse

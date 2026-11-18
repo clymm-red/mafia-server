@@ -67,7 +67,10 @@ class GameService:
         logger.info(f"save_game {game.id}")
         return await self._game_repository.save_game(game)
 
-    async def process_role_action(self, game_command: GameCommand) -> bool | None:
+    async def process_role_action(
+        self,
+        game_command: GameCommand,
+    ) -> bool | None:
         """
         Обрабатывает ночной ход игрока
         """

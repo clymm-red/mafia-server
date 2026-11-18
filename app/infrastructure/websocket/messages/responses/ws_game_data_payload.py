@@ -2,7 +2,7 @@ from datetime import datetime
 
 from domain.enums import RoleEnum, TeamEnum, GameStageEnum, GameStatusEnum
 from presentation.api.v1.dtos.responses.player_response import PlayerResponse
-from infrastructure.websocket.dtos.base_websocket_message import (
+from infrastructure.websocket.messages.base_websocket_message import (
     BaseWebSocketMessage,
 )
 

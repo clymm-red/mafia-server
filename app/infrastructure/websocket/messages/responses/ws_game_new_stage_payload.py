@@ -1,5 +1,5 @@
 from domain.enums import GameStageEnum
-from infrastructure.websocket.dtos.base_websocket_message import (
+from infrastructure.websocket.messages.base_websocket_message import (
     BaseWebSocketMessage,
 )
 

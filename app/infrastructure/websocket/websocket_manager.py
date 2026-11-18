@@ -7,7 +7,7 @@ from fastapi import WebSocket
 from domain.enums import WebSocketMessageTypeEnum
 from domain.exceptions import AppException
 from infrastructure.logger_config import get_logger
-from infrastructure.websocket.dtos import WebSocketMessage
+from infrastructure.websocket.messages import WebSocketMessage
 from infrastructure.websocket.room_connection import RoomConnection
 
 
