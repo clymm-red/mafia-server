@@ -17,11 +17,11 @@ from infrastructure.websocket.messages import (
 )
 
 
-room_websocket_router = APIRouter()
+room_router = APIRouter()
 logger = get_logger(__name__, 10)
 
 
-@room_websocket_router.websocket("/rooms/{room_id}")
+@room_router.websocket("/rooms/{room_id}")
 @inject
 async def room_websocket(
     room_id: str, websocket: WebSocket, container: FromDishka[AsyncContainer]

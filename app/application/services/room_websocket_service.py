@@ -8,6 +8,8 @@ from application.commands import LobbyJoinCommand
 from application.services import UserService, LobbyService
 from infrastructure.logger import get_logger
 from infrastructure.websocket import WebSocketManager
+from presentation.http.v1.requests import CurrentUser
+from presentation.http.v1.responses import UserResponse, LobbyResponse
 from application.ws_message_handlers import (
     LobbyMessageHandler,
     GameWSMessageHandler,
@@ -16,8 +18,6 @@ from infrastructure.websocket.messages import (
     WebSocketMessage,
     WSUserConnectionMessagePayload,
 )
-from presentation.api.v1.dtos.requests import CurrentUser
-from presentation.api.v1.dtos.responses import UserResponse, LobbyResponse
 
 
 logger = get_logger(f"{__name__}.RoomWebSocketService")

@@ -4,7 +4,8 @@ from dishka.integrations.fastapi import inject
 
 from application.commands import LobbyCreateCommand
 from application.services import LobbyService
-from presentation.api.v1.dtos.requests import CurrentUser, LobbyCreate
+from presentation.http.v1.requests import CurrentUser, LobbyCreate
+from presentation.http.v1.responses import LobbyResponse
 
 
 lobby_router = APIRouter(prefix="/lobbies", tags=["lobby"])
@@ -19,7 +20,10 @@ async def get_all_lobbies(
     return lobbies
 
 
-@lobby_router.post("/")
+@lobby_router.post(
+    "/",
+    response_model=LobbyResponse,
+)
 @inject
 async def create_lobby(
     req: LobbyCreate,

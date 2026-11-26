@@ -2,7 +2,7 @@ from dishka import Scope, Provider, provide
 from fastapi import Request
 
 from application.services import SecurityService
-from presentation.api.v1.dtos.requests import CurrentUser
+from presentation.http.v1.requests import CurrentUser
 
 
 class AuthProvider(Provider):

@@ -22,6 +22,7 @@ from domain.exceptions import (
 from application.services import GameService
 from infrastructure.logger import get_logger
 from infrastructure.websocket import WebSocketManager
+from presentation.http.v1.responses import PlayerResponse
 from infrastructure.websocket.messages import (
     WebSocketMessage,
     WSGameDataPayload,
@@ -30,7 +31,6 @@ from infrastructure.websocket.messages import (
     WSGameNewStagePayload,
     WSGameActionRequestPayload,
 )
-from presentation.api.v1.dtos.responses import PlayerResponse
 
 
 logger = get_logger(f"{__name__}.GameManagerService")

@@ -13,12 +13,12 @@ from application.commands import GameCommand
 from application.services import GameService, GameManagerService
 from infrastructure.logger import get_logger
 from infrastructure.websocket import WebSocketManager
+from presentation.http.v1.requests import CurrentUser
 from infrastructure.websocket.messages import (
     WebSocketMessage,
     WSGameInfoPayload,
     WSGameCommandPayload,
 )
-from presentation.api.v1.dtos.requests import CurrentUser
 
 
 logger = get_logger(f"{__name__}.GameWebSocketMessageHandler")

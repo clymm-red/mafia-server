@@ -7,7 +7,7 @@ from infrastructure.logger import get_logger
 from infrastructure.redis.repositories import GameRepository, LobbyRepository
 from application.services.avatar_service import AvatarService
 from infrastructure.database.repositories import UserRepository
-from presentation.api.v1.dtos.responses.room_response import RoomResponse
+from presentation.http.v1.responses.room_response import RoomResponse
 
 
 logger = get_logger(f"{__name__}.UserService")

@@ -1,7 +1,7 @@
 from uuid import UUID
 
-from presentation.api.v1.dtos.base_dto import BaseDTO
-from presentation.api.v1.dtos.responses import UserResponse
+from presentation.http.base_dto import BaseDTO
+from presentation.http.v1.responses import UserResponse
 
 
 class LobbyResponse(BaseDTO):

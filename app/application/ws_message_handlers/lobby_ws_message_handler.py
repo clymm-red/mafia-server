@@ -12,12 +12,12 @@ from application.commands import LobbyLeaveCommand
 from application.services import GameService, GameManagerService
 from infrastructure.logger import get_logger
 from infrastructure.websocket import WebSocketManager
+from presentation.http.v1.requests import CurrentUser
 from infrastructure.redis.repositories import LobbyRepository
 from infrastructure.websocket.messages import (
     WebSocketMessage,
     LobbyCommandPayload,
 )
-from presentation.api.v1.dtos.requests import CurrentUser
 from application.services.lobby_service import LobbyService
 
 
@@ -44,11 +44,12 @@ class LobbyMessageHandler:
     async def handle(
         self, message: WebSocketMessage, current_user: CurrentUser
     ):
-        logger.debug("handle")
-        logger.debug(message.model_dump_json())
         """
         Обрабатывает Lobby Websocket Message взависимости от его типа
         """
+        logger.debug("handle")
+        logger.debug(message.model_dump_json())
+
         if message.message_type == WebSocketMessageTypeEnum.COMMAND:
             payload = LobbyCommandPayload(**message.payload.model_dump())
 

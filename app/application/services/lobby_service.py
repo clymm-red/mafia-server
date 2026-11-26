@@ -10,8 +10,8 @@ from infrastructure.logger import get_logger
 from infrastructure.redis.repositories import (
     LobbyRepository,
 )
-from presentation.api.v1.dtos.responses.user_response import UserResponse
-from presentation.api.v1.dtos.responses.lobby_response import (
+from presentation.http.v1.responses.user_response import UserResponse
+from presentation.http.v1.responses.lobby_response import (
     LobbyResponse,
 )
 

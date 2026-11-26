@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from presentation.api.v1.dtos.responses.user_response import UserResponse
+from presentation.http.v1.responses.user_response import UserResponse
 from infrastructure.websocket.messages.base_websocket_message import (
     BaseWebSocketMessage,
 )

@@ -19,12 +19,12 @@ from infrastructure.logger import get_logger
 from presentation.providers import AuthProvider
 from infrastructure.providers import InfrastructureProvider
 from infrastructure.s3.repositories import S3Repository
-from presentation.api.v1.routers.user_router import user_router
-from presentation.api.v1.routers.lobby_router import lobby_router
-from infrastructure.factories.db_session_factory import DBSessionFactory
-from presentation.api.v1.routers.room_websocket_router import (
-    room_websocket_router,
+from presentation.ws.v1.routers.room_router import (
+    room_router,
 )
+from presentation.http.v1.routers.user_router import user_router
+from presentation.http.v1.routers.lobby_router import lobby_router
+from infrastructure.factories.db_session_factory import DBSessionFactory
 
 
 logger = get_logger(__name__, 10)
@@ -111,4 +111,4 @@ def app_exception_handler(request: Request, exc: AppException):
 
 app.include_router(user_router)
 app.include_router(lobby_router)
-app.include_router(room_websocket_router)
+app.include_router(room_router)

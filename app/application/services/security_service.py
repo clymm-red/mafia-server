@@ -9,8 +9,8 @@ from application.queries import UserAuthQuery
 from application.commands import UserCreateCommand
 from application.services import JWTService
 from infrastructure.logger import get_logger
-from presentation.api.v1.dtos.requests import CurrentUser
-from presentation.api.v1.dtos.responses import TokenPair, UserCreateResponse
+from presentation.http.v1.requests import CurrentUser
+from presentation.http.v1.responses import TokenPair, UserCreateResponse
 from infrastructure.database.repositories import UserRepository
 
 

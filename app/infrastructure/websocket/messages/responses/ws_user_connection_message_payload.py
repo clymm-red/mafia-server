@@ -1,4 +1,4 @@
-from presentation.api.v1.dtos.responses import UserResponse, LobbyResponse
+from presentation.http.v1.responses import UserResponse, LobbyResponse
 from infrastructure.websocket.messages.base_websocket_message import (
     BaseWebSocketMessage,
 )
