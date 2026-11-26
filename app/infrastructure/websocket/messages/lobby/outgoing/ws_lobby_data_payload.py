@@ -1,12 +1,10 @@
 from uuid import UUID
 
 from presentation.http.v1.responses.user_response import UserResponse
-from infrastructure.websocket.messages.base_websocket_message import (
-    BaseWebSocketMessage,
-)
+from infrastructure.websocket.messages.base_payload import BasePayload
 
 
-class WSLobbyDataPayload(BaseWebSocketMessage):
+class WSLobbyDataPayload(BasePayload):
     id: str
     participants: list[UserResponse]
     admin_id: UUID

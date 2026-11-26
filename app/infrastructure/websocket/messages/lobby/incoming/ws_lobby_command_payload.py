@@ -1,12 +1,10 @@
 from uuid import UUID
 
 from domain.enums import RoleEnum, LobbyCommandType
-from infrastructure.websocket.messages.base_websocket_message import (
-    BaseWebSocketMessage,
-)
+from infrastructure.websocket.messages.base_payload import BasePayload
 
 
-class LobbyCommandPayload(BaseWebSocketMessage):
+class LobbyCommandPayload(BasePayload):
     action_type: LobbyCommandType
     target_id: UUID | None
     room_id: str

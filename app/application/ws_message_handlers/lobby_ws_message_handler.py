@@ -17,9 +17,9 @@ from presentation.http.v1.requests import CurrentUser
 from infrastructure.redis.repositories import LobbyRepository
 from infrastructure.websocket.messages import (
     WebSocketMessage,
-    LobbyCommandPayload,
 )
 from application.services.lobby_service import LobbyService
+from infrastructure.websocket.messages.lobby import LobbyCommandPayload
 
 
 logger = get_logger(f"{__name__}.LobbyWebSockeMessageHandler")
