@@ -9,9 +9,9 @@ from starlette.testclient import WebSocketTestSession
 from starlette.websockets import WebSocketDisconnect
 
 from domain.enums import (
+    LobbyCommandType,
     WebSocketTopicEnum,
     WebSocketMessageTypeEnum,
-    WebSocketLobbyCommandTypeEnum,
 )
 from infrastructure.websocket.messages import (
     WebSocketMessage,
@@ -66,7 +66,7 @@ def test_create_and_join_lobby(client: TestClient, redis_client, players):
                     topic=WebSocketTopicEnum.LOBBY,
                     timestamp=datetime.now().isoformat(),
                     payload=WSLobbyCommandPayload(
-                        action_type=WebSocketLobbyCommandTypeEnum.LEAVE,
+                        action_type=LobbyCommandType.LEAVE,
                         role_set=None,
                         room_id=lobby_id,
                         target_id=None,

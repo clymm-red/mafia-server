@@ -79,7 +79,7 @@ class WebSocketGameCommandActionTypeEnum(StrEnum):
     LEAVE = "Leave"
 
 
-class WebSocketLobbyCommandTypeEnum(StrEnum):
+class LobbyCommandType(StrEnum):
     KICK = "Kick"
     START = "Start"
     DELETE = "Delete"

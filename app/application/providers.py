@@ -13,8 +13,8 @@ from application.services import (
 )
 from infrastructure.websocket import WebSocketManager
 from application.ws_message_handlers import (
+    LobbyMessageHandler,
     GameWSMessageHandler,
-    LobbyWSMessageHandler,
 )
 from infrastructure.redis.repositories import GameRepository, LobbyRepository
 from infrastructure.database.repositories import (
@@ -85,12 +85,14 @@ class ApplicationProvider(Provider):
         self,
         game_service: GameService,
         lobby_service: LobbyService,
+        lobby_repository: LobbyRepository,
         game_manager: GameManagerService,
         websocket_manager: WebSocketManager,
-    ) -> LobbyWSMessageHandler:
-        return LobbyWSMessageHandler(
+    ) -> LobbyMessageHandler:
+        return LobbyMessageHandler(
             game_service,
             lobby_service,
+            lobby_repository,
             game_manager,
             websocket_manager,
             websocket_manager,
@@ -101,7 +103,7 @@ class ApplicationProvider(Provider):
         self,
         websocket_manager: WebSocketManager,
         game_ws_handler: GameWSMessageHandler,
-        lobby_ws_handler: LobbyWSMessageHandler,
+        lobby_ws_handler: LobbyMessageHandler,
         user_service: UserService,
         lobby_service: LobbyService,
     ) -> RoomWebSocketService:

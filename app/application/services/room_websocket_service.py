@@ -9,8 +9,8 @@ from application.services import UserService, LobbyService
 from infrastructure.logger import get_logger
 from infrastructure.websocket import WebSocketManager
 from application.ws_message_handlers import (
+    LobbyMessageHandler,
     GameWSMessageHandler,
-    LobbyWSMessageHandler,
 )
 from infrastructure.websocket.messages import (
     WebSocketMessage,
@@ -28,7 +28,7 @@ class RoomWebSocketService:
         self,
         websocket_manager: FromDishka[WebSocketManager],
         game_websocket_handler: FromDishka[GameWSMessageHandler],
-        lobby_websocket_handler: FromDishka[LobbyWSMessageHandler],
+        lobby_websocket_handler: FromDishka[LobbyMessageHandler],
         user_service: FromDishka[UserService],
         lobby_service: FromDishka[LobbyService],
     ):
