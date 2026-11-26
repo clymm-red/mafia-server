@@ -16,6 +16,7 @@ from domain.exceptions import (
     RepoException,
 )
 from domain.entities.game import Game
+from infrastructure.logger import get_logger
 from domain.entities.player import (
     Role,
     Doctor,
@@ -27,7 +28,6 @@ from domain.entities.player import (
     MafiaMember,
 )
 from infrastructure.redis.models import GameModel, PlayerModel
-from infrastructure.logger_config import get_logger
 from infrastructure.database.repositories import UserRepository
 
 

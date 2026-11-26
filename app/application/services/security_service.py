@@ -8,7 +8,7 @@ from domain.exceptions import AppException, TokenException, DomainException
 from application.queries import UserAuthQuery
 from application.commands import UserCreateCommand
 from application.services import JWTService
-from infrastructure.logger_config import get_logger
+from infrastructure.logger import get_logger
 from presentation.api.v1.dtos.requests import CurrentUser
 from presentation.api.v1.dtos.responses import TokenPair, UserCreateResponse
 from infrastructure.database.repositories import UserRepository

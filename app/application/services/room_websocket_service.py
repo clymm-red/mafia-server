@@ -6,8 +6,8 @@ from fastapi import WebSocket
 from domain.enums import WebSocketTopicEnum, WebSocketMessageTypeEnum
 from application.commands import LobbyJoinCommand
 from application.services import UserService, LobbyService
+from infrastructure.logger import get_logger
 from infrastructure.websocket import WebSocketManager
-from infrastructure.logger_config import get_logger
 from application.ws_message_handlers import (
     GameWSMessageHandler,
     LobbyWSMessageHandler,

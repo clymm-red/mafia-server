@@ -10,7 +10,7 @@ from dishka.integrations.fastapi import inject
 from domain.enums import WebSocketTopicEnum, WebSocketMessageTypeEnum
 from domain.exceptions import DomainException
 from application.services import SecurityService, RoomWebSocketService
-from infrastructure.logger_config import get_logger
+from infrastructure.logger import get_logger
 from infrastructure.websocket.messages import (
     WebSocketMessage,
     WSGameInfoPayload,

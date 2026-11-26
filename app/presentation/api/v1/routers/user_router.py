@@ -14,7 +14,7 @@ from application.services import (
     AvatarService,
     SecurityService,
 )
-from infrastructure.logger_config import get_logger
+from infrastructure.logger import get_logger
 from presentation.api.v1.dtos.requests import UserCreate, CurrentUser
 from presentation.api.v1.dtos.responses import (
     RoomResponse,

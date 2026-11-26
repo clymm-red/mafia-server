@@ -5,8 +5,8 @@ from fastapi import UploadFile
 from sqlalchemy import delete, select
 from botocore.exceptions import ClientError
 
+from infrastructure.logger import get_logger
 from infrastructure.factories import DBSessionFactory
-from infrastructure.logger_config import get_logger
 from infrastructure.database.models.avatar_model import AvatarModel
 from infrastructure.s3.repositories.s3repository import S3Repository
 

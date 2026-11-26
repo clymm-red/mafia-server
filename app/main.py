@@ -15,9 +15,9 @@ from domain.exceptions import (
     DomainException,
 )
 from application.providers import ApplicationProvider
+from infrastructure.logger import get_logger
 from presentation.providers import AuthProvider
 from infrastructure.providers import InfrastructureProvider
-from infrastructure.logger_config import get_logger
 from infrastructure.s3.repositories import S3Repository
 from presentation.api.v1.routers.user_router import user_router
 from presentation.api.v1.routers.lobby_router import lobby_router

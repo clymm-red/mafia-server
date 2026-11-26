@@ -1,8 +1,8 @@
 from botocore.client import BaseClient
 from botocore.exceptions import ClientError
 
+from infrastructure.logger import get_logger
 from infrastructure.environment import env
-from infrastructure.logger_config import get_logger
 
 
 logger = get_logger(f"{__name__}.S3Repository")

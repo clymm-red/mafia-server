@@ -8,7 +8,7 @@ from domain.entities import Game, Lobby, Player
 from domain.services import RoleDistributionService
 from domain.exceptions import DomainException, RoomNotFoundException
 from application.commands import GameCommand
-from infrastructure.logger_config import get_logger
+from infrastructure.logger import get_logger
 from infrastructure.redis.repositories import GameRepository, LobbyRepository
 
 

@@ -5,8 +5,8 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
+from infrastructure.logger import get_logger
 from infrastructure.environment import env
-from infrastructure.logger_config import get_logger
 from infrastructure.database.models import Base
 
 

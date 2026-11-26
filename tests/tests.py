@@ -13,7 +13,7 @@ from domain.enums import (
     WebSocketMessageTypeEnum,
     WebSocketLobbyCommandTypeEnum,
 )
-from infrastructure.websocket.dtos import (
+from infrastructure.websocket.messages import (
     WebSocketMessage,
     WSLobbyCommandPayload,
 )
