@@ -15,7 +15,7 @@ from domain.enums import (
 )
 from infrastructure.websocket.messages import (
     WebSocketMessage,
-    WSLobbyCommandPayload,
+    LobbyCommandPayload,
 )
 
 
@@ -65,7 +65,7 @@ def test_create_and_join_lobby(client: TestClient, redis_client, players):
                     message_type=WebSocketMessageTypeEnum.COMMAND,
                     topic=WebSocketTopicEnum.LOBBY,
                     timestamp=datetime.now().isoformat(),
-                    payload=WSLobbyCommandPayload(
+                    payload=LobbyCommandPayload(
                         action_type=LobbyCommandType.LEAVE,
                         role_set=None,
                         room_id=lobby_id,
