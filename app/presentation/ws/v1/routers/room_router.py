@@ -15,6 +15,7 @@ from infrastructure.websocket.messages import (
     WebSocketMessage,
     WSGameInfoPayload,
 )
+from infrastructure.websocket.messages.unknown_message import UnknownMessage
 
 
 room_router = APIRouter()
@@ -53,18 +54,26 @@ async def room_websocket(
         while websocket.application_state == WebSocketState.CONNECTED:
             raw_message: dict[str, Any] = await websocket.receive_json()
             logger.debug(f"{raw_message} {type(raw_message)}")
-            ws_message = WebSocketMessage(**raw_message)
+
+            ws_message = UnknownMessage.model_validate(raw_message)
+            ws_msg_old = (
+                WebSocketMessage(**raw_message)
+                if ws_message.topic == Topic.GAME
+                else None
+            )
+
             try:
                 async with container() as request_container:
                     room_service = await request_container.get(
                         RoomWebSocketService
                     )
-                    await room_service.handle_message(ws_message, current_user)
+                    await room_service.handle_message(
+                        ws_msg_old, ws_message, current_user
+                    )
 
             except DomainException as e:
                 logger.error(
-                    f"Error on handling message: {ws_message.model_dump()}\n"
-                    f"Error: {e.args}"
+                    f"Error on handling message: {raw_message}\nError: {e.args}"
                 )
                 await websocket.send_text(
                     WebSocketMessage(

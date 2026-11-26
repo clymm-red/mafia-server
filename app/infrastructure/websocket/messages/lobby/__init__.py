@@ -1,8 +1,6 @@
-from .outgoing.ws_lobby_data_payload import WSLobbyDataPayload
-from .incoming.ws_lobby_command_payload import LobbyCommandPayload
+from .outgoing.lobby_data_payload import LobbyDataPayload
 
 
 __all__ = [
-    "LobbyCommandPayload",
-    "WSLobbyDataPayload",
+    "LobbyDataPayload",
 ]

@@ -1,6 +1,5 @@
 from domain.enums import Topic, WebSocketMessageTypeEnum
 
-from .lobby import WSLobbyDataPayload, LobbyCommandPayload
 from .base_message import BaseMessage
 from .game.responses.ws_game_data_payload import WSGameDataPayload
 from .game.responses.ws_game_info_payload import WSGameInfoPayload
@@ -36,8 +35,6 @@ class WebSocketMessage(BaseMessage):
         | WSGameActionRequestPayload  # ACTION_REQUEST
         | WSGameNewStagePayload  # NEW_STAGE
         | WSGameDataPayload  # GAME_DATA
-        | WSLobbyDataPayload  # LOBBY_DATA
-        | LobbyCommandPayload  # COMAND
         | WSUserConnectionMessagePayload  # USER_CONNECT | USER_CONNECT
         | WSGameRolePayload
     )

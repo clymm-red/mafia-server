@@ -1,4 +1,3 @@
-from typing import assert_never
 from datetime import datetime
 
 from dishka import FromDishka
@@ -19,6 +18,7 @@ from infrastructure.websocket.messages import (
     WebSocketMessage,
     WSUserConnectionMessagePayload,
 )
+from infrastructure.websocket.messages.unknown_message import UnknownMessage
 
 
 logger = get_logger(f"{__name__}.RoomWebSocketService")
@@ -108,15 +108,18 @@ class RoomWebSocketService:
 
     async def handle_message(
         self,
-        message: WebSocketMessage,
+        old_message: WebSocketMessage | None,
+        message: UnknownMessage,
         current_user: CurrentUser,
     ):
         logger.debug("handle_message")
 
         match message.topic:
             case Topic.LOBBY:
-                await self._lobby_handler.handle(message, current_user)
+                lobby_message = message.to_lobby_message()
+                await self._lobby_handler.handle(lobby_message, current_user)
             case Topic.GAME:
-                await self._game_handler.handle(message, current_user)
+                assert old_message is not None
+                await self._game_handler.handle(old_message, current_user)
             case _:
-                assert_never(message.topic)
+                raise TypeError("Что-то тут не так")

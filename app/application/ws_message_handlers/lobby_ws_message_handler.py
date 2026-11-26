@@ -3,23 +3,21 @@ from typing import assert_never
 
 from dishka import FromDishka
 
-from domain.enums import (
-    Topic,
-    LobbyCommandType,
-    WebSocketMessageTypeEnum,
-)
-from domain.exceptions import DomainException, RoomNotFoundException
+from domain.exceptions import RoomNotFoundException
 from application.commands import LobbyLeaveCommand
 from application.services import GameService, GameManagerService
 from infrastructure.logger import get_logger
 from infrastructure.websocket import WebSocketManager
 from presentation.http.v1.requests import CurrentUser
 from infrastructure.redis.repositories import LobbyRepository
-from infrastructure.websocket.messages import (
-    WebSocketMessage,
-)
 from application.services.lobby_service import LobbyService
-from infrastructure.websocket.messages.lobby import LobbyCommandPayload
+from infrastructure.websocket.messages.lobby.incoming import (
+    KickUserPayload,
+    StartGamePayload,
+    LeaveLobbyPayload,
+    DeleteLobbyPayload,
+    IncomingLobbyMessage,
+)
 
 
 logger = get_logger(f"{__name__}.LobbyWebSockeMessageHandler")
@@ -43,7 +41,7 @@ class LobbyMessageHandler:
         self._websocket_manager = websocket_manager
 
     async def handle(
-        self, message: WebSocketMessage, current_user: CurrentUser
+        self, message: IncomingLobbyMessage, current_user: CurrentUser
     ):
         """
         Обрабатывает Lobby Websocket Message взависимости от его типа
@@ -51,34 +49,26 @@ class LobbyMessageHandler:
         logger.debug("handle")
         logger.debug(message.model_dump_json())
 
-        if message.message_type == WebSocketMessageTypeEnum.COMMAND:
-            payload = LobbyCommandPayload(**message.payload.model_dump())
+        payload = message.payload
 
-            match payload.action_type:
-                case LobbyCommandType.START:
-                    await self.__handle_start(payload)
-                case LobbyCommandType.KICK:
-                    await self.__handle_kick(payload)
-                case LobbyCommandType.DELETE:
-                    await self.__handle_delete(payload, current_user.id)
-                case LobbyCommandType.LEAVE:
-                    await self.__handle_leave(payload, current_user.id)
-                case _:
-                    assert_never(payload.action_type)
+        match payload:
+            case StartGamePayload():
+                await self.__handle_start(payload)
+            case KickUserPayload():
+                await self.__handle_kick(payload)
+            case DeleteLobbyPayload():
+                await self.__handle_delete(payload, current_user.id)
+            case LeaveLobbyPayload():
+                await self.__handle_leave(payload, current_user.id)
+            case _:
+                assert_never(payload)
 
-    async def __handle_start(self, payload: LobbyCommandPayload):
-        if not payload.role_set:
-            exc = DomainException(
-                Topic.LOBBY,
-                "WebsSocketCommand missing role_set",
-            )
-            logger.error(exc)
-            raise exc
-
-        lobby = await self._lobby_repository.get_lobby_by_id(payload.room_id)
+    async def __handle_start(self, payload: StartGamePayload):
+        lobby_id = payload.room_id
+        lobby = await self._lobby_repository.get_lobby_by_id(lobby_id)
 
         if not lobby:
-            exc = RoomNotFoundException(context_id=payload.room_id)
+            exc = RoomNotFoundException(context_id=lobby_id)
             logger.error(exc)
             raise exc
 
@@ -86,48 +76,31 @@ class LobbyMessageHandler:
         new_game = await self._game_service.create_game_from_lobby(
             lobby, payload.role_set
         )
+
         logger.debug("calling start game")
         await self._game_manager.start_game(new_game)
 
-    async def __handle_kick(self, payload: LobbyCommandPayload):
-        if not payload.target_id:
-            exc = DomainException(
-                Topic.LOBBY,
-                "WebSocket KICK command missing target_id",
-            )
-            logger.error(exc)
-            raise exc
+    async def __handle_kick(self, payload: KickUserPayload):
+        lobby_id = payload.room_id
+        user_id = payload.target_id
 
-        lobby_leave_command = LobbyLeaveCommand(
-            lobby_id=payload.room_id,
-            user_id=payload.target_id,
-        )
+        lobby_leave_command = LobbyLeaveCommand(lobby_id, user_id)
 
         await self._lobby_service.leave_lobby(lobby_leave_command)
-        await self._websocket_manager.disconnect(
-            lobby_leave_command.lobby_id,
-            lobby_leave_command.user_id,
-        )
+        await self._websocket_manager.disconnect(lobby_id, user_id)
 
-    async def __handle_delete(
-        self, payload: LobbyCommandPayload, user_id: UUID
-    ):
-        lobby_leave_command = LobbyLeaveCommand(
-            lobby_id=payload.room_id,
-            user_id=user_id,
-        )
-        await self._lobby_service.leave_lobby(lobby_leave_command)
-        await self._websocket_manager.delete_all_connections(
-            lobby_leave_command.lobby_id
-        )
+    async def __handle_delete(self, payload: DeleteLobbyPayload, user_id: UUID):
+        lobby_id = payload.room_id
 
-    async def __handle_leave(self, payload: LobbyCommandPayload, user_id: UUID):
-        lobby_leave_command = LobbyLeaveCommand(
-            lobby_id=payload.room_id,
-            user_id=user_id,
-        )
+        lobby_leave_command = LobbyLeaveCommand(lobby_id, user_id)
+
         await self._lobby_service.leave_lobby(lobby_leave_command)
-        await self._websocket_manager.disconnect(
-            lobby_leave_command.lobby_id,
-            lobby_leave_command.user_id,
-        )
+        await self._websocket_manager.delete_all_connections(lobby_id)
+
+    async def __handle_leave(self, payload: LeaveLobbyPayload, user_id: UUID):
+        lobby_id = payload.room_id
+
+        lobby_leave_command = LobbyLeaveCommand(lobby_id, user_id)
+
+        await self._lobby_service.leave_lobby(lobby_leave_command)
+        await self._websocket_manager.disconnect(lobby_id, user_id)

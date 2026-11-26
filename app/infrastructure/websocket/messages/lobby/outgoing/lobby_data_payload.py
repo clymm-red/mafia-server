@@ -4,7 +4,7 @@ from presentation.http.v1.responses.user_response import UserResponse
 from infrastructure.websocket.messages.base_payload import BasePayload
 
 
-class WSLobbyDataPayload(BasePayload):
+class LobbyDataPayload(BasePayload):
     id: str
     participants: list[UserResponse]
     admin_id: UUID

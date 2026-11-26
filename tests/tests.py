@@ -10,12 +10,11 @@ from starlette.websockets import WebSocketDisconnect
 
 from domain.enums import (
     Topic,
-    LobbyCommandType,
     WebSocketMessageTypeEnum,
 )
-from infrastructure.websocket.messages import (
-    WebSocketMessage,
-    LobbyCommandPayload,
+from infrastructure.websocket.messages.lobby.incoming import (
+    LeaveLobby,
+    LeaveLobbyPayload,
 )
 
 
@@ -61,17 +60,15 @@ def test_create_and_join_lobby(client: TestClient, redis_client, players):
 
         for i in range(len(sessions) - 1, -1, -1):
             sessions[i].send_text(
-                WebSocketMessage(
-                    message_type=WebSocketMessageTypeEnum.COMMAND,
-                    topic=Topic.LOBBY,
-                    timestamp=datetime.now().isoformat(),
-                    payload=LobbyCommandPayload(
-                        action_type=LobbyCommandType.LEAVE,
-                        role_set=None,
-                        room_id=lobby_id,
-                        target_id=None,
-                    ),
-                ).model_dump_json(by_alias=True),
+                json.dumps(
+                    {
+                        "topic": Topic.LOBBY,
+                        "timestamp": datetime.now().isoformat(),
+                        **LeaveLobby(
+                            payload=LeaveLobbyPayload(room_id=lobby_id),
+                        ).model_dump(by_alias=True),
+                    }
+                ),
             )
             # Сервер обрабатывает LEAVE и закрывает соединение. Дожидаемся
             # закрытия, чтобы выходы не выполнялись конкурентно (иначе
