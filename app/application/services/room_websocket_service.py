@@ -1,9 +1,10 @@
+from typing import assert_never
 from datetime import datetime
 
 from dishka import FromDishka
 from fastapi import WebSocket
 
-from domain.enums import WebSocketTopicEnum, WebSocketMessageTypeEnum
+from domain.enums import Topic, WebSocketMessageTypeEnum
 from application.commands import LobbyJoinCommand
 from application.services import UserService, LobbyService
 from infrastructure.logger import get_logger
@@ -33,8 +34,8 @@ class RoomWebSocketService:
         lobby_service: FromDishka[LobbyService],
     ):
         self._websocket_manager = websocket_manager
-        self._game_websocket_handler = game_websocket_handler
-        self._lobby_websocket_handler = lobby_websocket_handler
+        self._game_handler = game_websocket_handler
+        self._lobby_handler = lobby_websocket_handler
         self._user_service = user_service
         self._lobby_service = lobby_service
 
@@ -52,9 +53,7 @@ class RoomWebSocketService:
 
         message = WebSocketMessage(
             message_type=WebSocketMessageTypeEnum.USER_CONNECT,
-            topic=WebSocketTopicEnum.LOBBY
-            if lobby
-            else WebSocketTopicEnum.GAME,
+            topic=Topic.LOBBY if lobby else Topic.GAME,
             timestamp=datetime.now().isoformat(),
             payload=WSUserConnectionMessagePayload(
                 text=f"User {current_user.username} подключился к комнате",
@@ -93,11 +92,7 @@ class RoomWebSocketService:
 
         message = WebSocketMessage(
             message_type=WebSocketMessageTypeEnum.USER_LEAVE,
-            topic=(
-                WebSocketTopicEnum.LOBBY
-                if user_joined_room.is_lobby
-                else WebSocketTopicEnum.GAME
-            ),
+            topic=(Topic.LOBBY if user_joined_room.is_lobby else Topic.GAME),
             timestamp=datetime.now().isoformat(),
             payload=WSUserConnectionMessagePayload(
                 text=f"User {current_user.username} покинул комнату",
@@ -117,15 +112,11 @@ class RoomWebSocketService:
         current_user: CurrentUser,
     ):
         logger.debug("handle_message")
+
         match message.topic:
-            case WebSocketTopicEnum.LOBBY:
-                await self._lobby_websocket_handler.handle(
-                    message, current_user
-                )
-
-            case WebSocketTopicEnum.GAME:
-                await self._game_websocket_handler.handle(message, current_user)
-
-            case WebSocketTopicEnum.SYSTEM:
-                pass
-                # TODO
+            case Topic.LOBBY:
+                await self._lobby_handler.handle(message, current_user)
+            case Topic.GAME:
+                await self._game_handler.handle(message, current_user)
+            case _:
+                assert_never(message.topic)

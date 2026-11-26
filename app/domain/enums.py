@@ -66,10 +66,9 @@ class WebSocketMessageTypeEnum(StrEnum):
     ROLE = "Role"
 
 
-class WebSocketTopicEnum(StrEnum):
+class Topic(StrEnum):
     LOBBY = "Lobby"
     GAME = "Game"
-    SYSTEM = "System"
 
 
 class WebSocketGameCommandActionTypeEnum(StrEnum):

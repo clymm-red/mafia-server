@@ -1,10 +1,11 @@
 from uuid import UUID
+from typing import assert_never
 
 from dishka import FromDishka
 
 from domain.enums import (
+    Topic,
     LobbyCommandType,
-    WebSocketTopicEnum,
     WebSocketMessageTypeEnum,
 )
 from domain.exceptions import DomainException, RoomNotFoundException
@@ -62,11 +63,13 @@ class LobbyMessageHandler:
                     await self.__handle_delete(payload, current_user.id)
                 case LobbyCommandType.LEAVE:
                     await self.__handle_leave(payload, current_user.id)
+                case _:
+                    assert_never(payload.action_type)
 
     async def __handle_start(self, payload: LobbyCommandPayload):
         if not payload.role_set:
             exc = DomainException(
-                WebSocketTopicEnum.LOBBY,
+                Topic.LOBBY,
                 "WebsSocketCommand missing role_set",
             )
             logger.error(exc)
@@ -89,7 +92,7 @@ class LobbyMessageHandler:
     async def __handle_kick(self, payload: LobbyCommandPayload):
         if not payload.target_id:
             exc = DomainException(
-                WebSocketTopicEnum.LOBBY,
+                Topic.LOBBY,
                 "WebSocket KICK command missing target_id",
             )
             logger.error(exc)

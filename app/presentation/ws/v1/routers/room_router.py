@@ -7,7 +7,7 @@ from fastapi.routing import APIRouter
 from starlette.websockets import WebSocketState
 from dishka.integrations.fastapi import inject
 
-from domain.enums import WebSocketTopicEnum, WebSocketMessageTypeEnum
+from domain.enums import Topic, WebSocketMessageTypeEnum
 from domain.exceptions import DomainException
 from application.services import SecurityService, RoomWebSocketService
 from infrastructure.logger import get_logger
@@ -69,7 +69,7 @@ async def room_websocket(
                 await websocket.send_text(
                     WebSocketMessage(
                         message_type=WebSocketMessageTypeEnum.ERROR,
-                        topic=WebSocketTopicEnum(e.topic),
+                        topic=Topic(e.topic),
                         timestamp=datetime.now().isoformat(),
                         payload=WSGameInfoPayload(text=e.message),
                     ).model_dump_json(by_alias=True)

@@ -6,10 +6,10 @@ from datetime import datetime
 from dishka import FromDishka, AsyncContainer
 
 from domain.enums import (
+    Topic,
     RoleEnum,
     GameStageEnum,
     PlayerStatusEnum,
-    WebSocketTopicEnum,
     WebSocketMessageTypeEnum,
     WebSocketGameCommandActionTypeEnum,
 )
@@ -78,7 +78,7 @@ class GameManagerService:
         await self._websocket_manager.send_broadcast(
             WebSocketMessage(
                 message_type=WebSocketMessageTypeEnum.GAME_START,
-                topic=WebSocketTopicEnum.GAME,
+                topic=Topic.GAME,
                 timestamp=datetime.now().isoformat(),
                 payload=WSGameInfoPayload(text="Игра началась"),
             ),
@@ -110,7 +110,7 @@ class GameManagerService:
             update_listener.set()
         else:
             exc = DomainException(
-                topic=WebSocketTopicEnum.GAME,
+                topic=Topic.GAME,
                 message=f"can't emit update on {game_id}",
             )
             logger.error(exc)
@@ -125,7 +125,7 @@ class GameManagerService:
             await event_listener.put(event)
         else:
             exc = DomainException(
-                topic=WebSocketTopicEnum.GAME,
+                topic=Topic.GAME,
                 message=f"can't create event {event}",
             )
             logger.exception(exc)
@@ -146,13 +146,13 @@ class GameManagerService:
                         logger.error("Победитель не установлен")
                         exc = DomainException(
                             message="Победитель не установлен",
-                            topic=WebSocketTopicEnum.GAME,
+                            topic=Topic.GAME,
                         )
                         logger.exception(exc)
                         raise exc
                     game_end_message = WebSocketMessage(
                         message_type=WebSocketMessageTypeEnum.GAME_FINISH,
-                        topic=WebSocketTopicEnum.GAME,
+                        topic=Topic.GAME,
                         timestamp=datetime.now().isoformat(),
                         payload=WSGameInfoPayload(
                             text=(
@@ -317,7 +317,7 @@ class GameManagerService:
             )
             talk_event_message = WebSocketMessage(
                 message_type=WebSocketMessageTypeEnum.EVENT,
-                topic=WebSocketTopicEnum.GAME,
+                topic=Topic.GAME,
                 timestamp=datetime.now().isoformat(),
                 payload=WSGameInfoPayload(
                     text=f"Говорит игрок {game.players[i].user.username}",
@@ -329,7 +329,7 @@ class GameManagerService:
             )
             action_request_message = talk_event_message = WebSocketMessage(
                 message_type=WebSocketMessageTypeEnum.ACTION_REQUEST,
-                topic=WebSocketTopicEnum.GAME,
+                topic=Topic.GAME,
                 timestamp=datetime.now().isoformat(),
                 payload=WSGameActionRequestPayload(
                     text="Ваша очередь говорить", timeout=talk_timeout
@@ -370,7 +370,7 @@ class GameManagerService:
             finally:
                 talk_end_message = WebSocketMessage(
                     message_type=WebSocketMessageTypeEnum.EVENT,
-                    topic=WebSocketTopicEnum.GAME,
+                    topic=Topic.GAME,
                     timestamp=datetime.now().isoformat(),
                     payload=WSGameInfoPayload(
                         text=(
@@ -406,7 +406,7 @@ class GameManagerService:
             # Broadcast message
             role_action_websocket_message = WebSocketMessage(
                 message_type=WebSocketMessageTypeEnum.INFO,
-                topic=WebSocketTopicEnum.GAME,
+                topic=Topic.GAME,
                 timestamp=datetime.now().isoformat(),
                 payload=WSGameInfoPayload(text=f"Ход {role_name.value}"),
             )
@@ -418,7 +418,7 @@ class GameManagerService:
             player_group = player_role_groups[role_name]
             role_action_websocket_message = WebSocketMessage(
                 message_type=WebSocketMessageTypeEnum.ACTION_REQUEST,
-                topic=WebSocketTopicEnum.GAME,
+                topic=Topic.GAME,
                 timestamp=datetime.now().isoformat(),
                 payload=WSGameActionRequestPayload(
                     text="Выберите свою цель", timeout=turn_timeout
@@ -451,7 +451,7 @@ class GameManagerService:
                 if extra_data:
                     result_message = WebSocketMessage(
                         message_type=WebSocketMessageTypeEnum.INFO,
-                        topic=WebSocketTopicEnum.GAME,
+                        topic=Topic.GAME,
                         timestamp=datetime.now().isoformat(),
                         payload=WSGameInfoPayload(
                             text=f"Результат проверки: {extra_data}"
@@ -470,7 +470,7 @@ class GameManagerService:
             finally:
                 action_finish_message = WebSocketMessage(
                     message_type=WebSocketMessageTypeEnum.INFO,
-                    topic=WebSocketTopicEnum.GAME,
+                    topic=Topic.GAME,
                     timestamp=datetime.now().isoformat(),
                     payload=WSGameInfoPayload(
                         text=f"Конец хода {role_name}. {role_name} засыпает"
@@ -493,7 +493,7 @@ class GameManagerService:
             text = "Ночью никто не выбыл"
         died_players_message = WebSocketMessage(
             message_type=WebSocketMessageTypeEnum.EVENT,
-            topic=WebSocketTopicEnum.GAME,
+            topic=Topic.GAME,
             timestamp=datetime.now().isoformat(),
             payload=WSGameInfoPayload(text=text),
         )
@@ -503,7 +503,7 @@ class GameManagerService:
 
         died_personal_message = WebSocketMessage(
             message_type=WebSocketMessageTypeEnum.EVENT,
-            topic=WebSocketTopicEnum.GAME,
+            topic=Topic.GAME,
             timestamp=datetime.now().isoformat(),
             payload=WSGameInfoPayload(text="Вы выбыли этой ночью"),
         )
@@ -552,7 +552,7 @@ class GameManagerService:
             # отправить всем
             vote_event_message = WebSocketMessage(
                 message_type=WebSocketMessageTypeEnum.EVENT,
-                topic=WebSocketTopicEnum.GAME,
+                topic=Topic.GAME,
                 timestamp=datetime.now().isoformat(),
                 payload=WSGameInfoPayload(
                     text=f"Голосует игрок {player.user.username}",
@@ -565,7 +565,7 @@ class GameManagerService:
             # отправить персонально
             action_request_message = WebSocketMessage(
                 message_type=WebSocketMessageTypeEnum.ACTION_REQUEST,
-                topic=WebSocketTopicEnum.GAME,
+                topic=Topic.GAME,
                 timestamp=datetime.now().isoformat(),
                 payload=WSGameActionRequestPayload(
                     text="Ваша очередь голосовать", timeout=vote_timeout
@@ -626,7 +626,7 @@ class GameManagerService:
                     break
             talk_end_message = WebSocketMessage(
                 message_type=WebSocketMessageTypeEnum.EVENT,
-                topic=WebSocketTopicEnum.GAME,
+                topic=Topic.GAME,
                 timestamp=datetime.now().isoformat(),
                 payload=WSGameInfoPayload(text=text),
             )
@@ -642,7 +642,7 @@ class GameManagerService:
 
         most_voted_message = WebSocketMessage(
             message_type=WebSocketMessageTypeEnum.EVENT,
-            topic=WebSocketTopicEnum.GAME,
+            topic=Topic.GAME,
             timestamp=datetime.now().isoformat(),
             payload=WSGameInfoPayload(
                 text=f"Кандидаты на выбытие: {most_voted_names}"
@@ -666,7 +666,7 @@ class GameManagerService:
         elif len(most_voted) > 1 and second_stage_candidates:
             no_lynch_message = WebSocketMessage(
                 message_type=WebSocketMessageTypeEnum.EVENT,
-                topic=WebSocketTopicEnum.GAME,
+                topic=Topic.GAME,
                 timestamp=datetime.now().isoformat(),
                 payload=WSGameInfoPayload(
                     text="Город не определился с кандидатом на выбытие"
@@ -680,7 +680,7 @@ class GameManagerService:
             game = await self._game_service.save_game(game)
             broadcase_lynched_player_message = WebSocketMessage(
                 message_type=WebSocketMessageTypeEnum.EVENT,
-                topic=WebSocketTopicEnum.GAME,
+                topic=Topic.GAME,
                 timestamp=datetime.now().isoformat(),
                 payload=WSGameInfoPayload(
                     text=f"Игрок {lynched_player.user.username} выбыл из игры"
@@ -692,7 +692,7 @@ class GameManagerService:
 
             personal_lynched_player_message = WebSocketMessage(
                 message_type=WebSocketMessageTypeEnum.EVENT,
-                topic=WebSocketTopicEnum.GAME,
+                topic=Topic.GAME,
                 timestamp=datetime.now().isoformat(),
                 payload=WSGameInfoPayload(text="Вы выбыли из игры"),
             )
@@ -708,7 +708,7 @@ class GameManagerService:
         for player in game.players:
             show_role_message = WebSocketMessage(
                 message_type=WebSocketMessageTypeEnum.ROLE,
-                topic=WebSocketTopicEnum.GAME,
+                topic=Topic.GAME,
                 timestamp=datetime.now().isoformat(),
                 payload=WSGameRolePayload(
                     text=f"Вам досталась роль {player.role.role_name}",
@@ -724,7 +724,7 @@ class GameManagerService:
     ):
         next_stage_message = WebSocketMessage(
             message_type=WebSocketMessageTypeEnum.NEW_STAGE,
-            topic=WebSocketTopicEnum.GAME,
+            topic=Topic.GAME,
             timestamp=datetime.now().isoformat(),
             payload=WSGameNewStagePayload(new_stage=new_stage, text=message),
         )
@@ -784,7 +784,7 @@ class GameManagerService:
 
         message = WebSocketMessage(
             message_type=WebSocketMessageTypeEnum.GAME_DATA,
-            topic=WebSocketTopicEnum.GAME,
+            topic=Topic.GAME,
             timestamp=datetime.now().isoformat(),
             payload=WSGameDataPayload(
                 id=game.id,

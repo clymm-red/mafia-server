@@ -3,8 +3,8 @@ from datetime import datetime
 from dishka import FromDishka
 
 from domain.enums import (
+    Topic,
     GameStageEnum,
-    WebSocketTopicEnum,
     WebSocketMessageTypeEnum,
     WebSocketGameCommandActionTypeEnum,
 )
@@ -58,7 +58,7 @@ class GameWSMessageHandler:
                 try:
                     if game.game_stage != GameStageEnum.NIGHT:
                         raise DomainException(
-                            WebSocketTopicEnum.GAME, "Неожиданное сообщение"
+                            Topic.GAME, "Неожиданное сообщение"
                         )
                     result = await self._game_service.process_role_action(
                         game_command
@@ -71,7 +71,7 @@ class GameWSMessageHandler:
                     await self._websocket_manager.send_to_one(
                         WebSocketMessage(
                             message_type=WebSocketMessageTypeEnum.ERROR,
-                            topic=WebSocketTopicEnum(e.topic),
+                            topic=Topic(e.topic),
                             timestamp=datetime.now().isoformat(),
                             payload=WSGameInfoPayload(
                                 text=e.message or "Неизвестная ошибка"
@@ -96,7 +96,7 @@ class GameWSMessageHandler:
                 try:
                     if game.game_stage != GameStageEnum.DAY_VOTE:
                         raise DomainException(
-                            WebSocketTopicEnum.GAME, "Неожиданное сообщение"
+                            Topic.GAME, "Неожиданное сообщение"
                         )
                     await self._game_service.process_vote(game_command)
                     target_id = str(ws_command.target_id)
@@ -109,7 +109,7 @@ class GameWSMessageHandler:
                     await self._websocket_manager.send_to_one(
                         WebSocketMessage(
                             message_type=WebSocketMessageTypeEnum.ERROR,
-                            topic=WebSocketTopicEnum(e.topic),
+                            topic=Topic(e.topic),
                             timestamp=datetime.now().isoformat(),
                             payload=WSGameInfoPayload(
                                 text=e.message or "Неизвестная ошибка"

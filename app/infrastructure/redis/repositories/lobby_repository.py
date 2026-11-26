@@ -4,7 +4,7 @@ from uuid import UUID
 import redis.asyncio as redis
 from dishka import FromDishka
 
-from domain.enums import WebSocketTopicEnum
+from domain.enums import Topic
 from domain.exceptions import (
     RepoException,
     LobbyIsFullException,
@@ -232,7 +232,7 @@ class LobbyRepository:
             except redis.WatchError as e:
                 print(e)
                 raise RepoException(
-                    WebSocketTopicEnum.LOBBY,
+                    Topic.LOBBY,
                     "Some actions in another sesstion",
                     context_id=lobby_id,
                     user_id=str(user_id),

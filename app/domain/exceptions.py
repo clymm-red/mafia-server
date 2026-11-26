@@ -1,6 +1,6 @@
 from typing import Literal
 
-from domain.enums import WebSocketTopicEnum
+from domain.enums import Topic
 
 
 class AppException(Exception):
@@ -20,7 +20,7 @@ class DomainException(AppException):
 
     def __init__(
         self,
-        topic: WebSocketTopicEnum,
+        topic: Topic,
         message: str = "Произошла неизвестная ошибка",
     ):
         self.topic = topic
@@ -48,7 +48,7 @@ class RepoException(AppException):
 
     def __init__(
         self,
-        topic: WebSocketTopicEnum,
+        topic: Topic,
         message: str = "Неизвестная ошибка в репозитории",
         context_id: str | None = None,
         user_id: str | None = None,
@@ -68,7 +68,7 @@ class UnexpectedWebSocketMessageActionType(DomainException):
         message: str = (
             f"Неверный ActionType: получен {provided}, ожидался {expected}"
         )
-        super().__init__(WebSocketTopicEnum.GAME, message)
+        super().__init__(Topic.GAME, message)
 
 
 class PlayerDisabledException(DomainException):
@@ -76,7 +76,7 @@ class PlayerDisabledException(DomainException):
         self,
         message: str = "Ваше действие заблокировано",
     ):
-        super().__init__(WebSocketTopicEnum.GAME, message)
+        super().__init__(Topic.GAME, message)
 
 
 class VotedDisabledTargetException(DomainException):
@@ -84,7 +84,7 @@ class VotedDisabledTargetException(DomainException):
         self,
         message: str = "Невозможно проголосовать за выбранного игрока",
     ):
-        super().__init__(WebSocketTopicEnum.GAME, message)
+        super().__init__(Topic.GAME, message)
 
 
 class VotedUntargetableException(DomainException):
@@ -96,7 +96,7 @@ class VotedUntargetableException(DomainException):
     ):
         self.context_id = context_id
         self.user_id = user_id
-        super().__init__(WebSocketTopicEnum.GAME, message)
+        super().__init__(Topic.GAME, message)
 
 
 class PlayerChosenTwiceException(DomainException):
@@ -108,7 +108,7 @@ class PlayerChosenTwiceException(DomainException):
     ):
         self.context_id = context_id
         self.user_id = user_id
-        super().__init__(WebSocketTopicEnum.GAME, message)
+        super().__init__(Topic.GAME, message)
 
 
 class RoomNotFoundException(DomainException):
@@ -121,7 +121,7 @@ class RoomNotFoundException(DomainException):
         message = message or f"Лобби {context_id} не найдено"
         self.context_id = context_id
         self.user_id = user_id
-        super().__init__(WebSocketTopicEnum.LOBBY, message)
+        super().__init__(Topic.LOBBY, message)
 
 
 class UserAlredyInLobbyException(DomainException):
@@ -134,7 +134,7 @@ class UserAlredyInLobbyException(DomainException):
         message = message or f"Пользователь {user_id} уже в лобби {context_id}"
         self.context_id = context_id
         self.user_id = user_id
-        super().__init__(WebSocketTopicEnum.LOBBY, message)
+        super().__init__(Topic.LOBBY, message)
 
 
 class ActionAlreadyPerformedException(RepoException):
@@ -149,7 +149,7 @@ class ActionAlreadyPerformedException(RepoException):
         )
         self.context_id = context_id
         self.user_id = user_id
-        super().__init__(WebSocketTopicEnum.LOBBY, message, context_id, user_id)
+        super().__init__(Topic.LOBBY, message, context_id, user_id)
 
 
 class LobbyIsFullException(DomainException):
@@ -164,7 +164,7 @@ class LobbyIsFullException(DomainException):
         )
         self.context_id = context_id
         self.user_id = user_id
-        super().__init__(WebSocketTopicEnum.LOBBY, message)
+        super().__init__(Topic.LOBBY, message)
 
 
 class UserNotInLobbyException(RepoException):
@@ -177,4 +177,4 @@ class UserNotInLobbyException(RepoException):
         message = message or f"Пользователя {user_id} нет в лобби {context_id}"
         self.context_id = context_id
         self.user_id = user_id
-        super().__init__(WebSocketTopicEnum.LOBBY, message, context_id, user_id)
+        super().__init__(Topic.LOBBY, message, context_id, user_id)

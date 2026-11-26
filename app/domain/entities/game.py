@@ -2,12 +2,12 @@ from uuid import UUID
 from datetime import datetime
 
 from domain.enums import (
+    Topic,
     RoleEnum,
     TeamEnum,
     GameStageEnum,
     GameStatusEnum,
     PlayerStatusEnum,
-    WebSocketTopicEnum,
 )
 from domain.exceptions import DomainException
 from domain.entities.user import User
@@ -98,7 +98,7 @@ class Game:
 
         if not (actor and target):
             raise DomainException(
-                WebSocketTopicEnum.GAME,
+                Topic.GAME,
                 f"Actor or Target not found in game {self.id}",
             )
 
@@ -123,7 +123,7 @@ class Game:
 
         if not (actor and target):
             exc = DomainException(
-                WebSocketTopicEnum.GAME,
+                Topic.GAME,
                 f"Actor or Target not found in game {self.id}",
             )
             logger.error(exc)

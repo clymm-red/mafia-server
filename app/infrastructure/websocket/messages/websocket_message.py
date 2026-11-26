@@ -1,4 +1,4 @@
-from domain.enums import WebSocketTopicEnum, WebSocketMessageTypeEnum
+from domain.enums import Topic, WebSocketMessageTypeEnum
 
 from .base_websocket_message import BaseWebSocketMessage
 from .responses.ws_game_data_payload import WSGameDataPayload
@@ -28,7 +28,7 @@ class WebSocketMessage(BaseWebSocketMessage):
     """
 
     message_type: WebSocketMessageTypeEnum
-    topic: WebSocketTopicEnum
+    topic: Topic
     timestamp: str
     payload: (
         WSGameCommandPayload  # COMAND
