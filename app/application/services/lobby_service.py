@@ -1,9 +1,10 @@
+from uuid import UUID
+
 from dishka import FromDishka
 from fastapi import HTTPException
 
 from application.commands import (
     LobbyJoinCommand,
-    LobbyLeaveCommand,
     LobbyCreateCommand,
 )
 from infrastructure.logger import get_logger
@@ -104,8 +105,7 @@ class LobbyService:
         else:
             raise HTTPException(404, "Lobby not found")
 
-    async def leave_lobby(self, command: LobbyLeaveCommand):
+    async def leave_lobby(self, user_id: UUID, lobby_id: str):
         logger.debug("leave_lobby")
-        await self._lobby_repository.remove_participant(
-            command.lobby_id, command.user_id
-        )
+
+        await self._lobby_repository.remove_participant(lobby_id, user_id)

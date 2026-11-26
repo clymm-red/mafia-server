@@ -1,22 +1,22 @@
-from datetime import datetime
-
 from dishka import FromDishka
 from fastapi import WebSocket
 
-from domain.enums import Topic, WebSocketMessageTypeEnum
+from domain.enums import Topic
 from application.commands import LobbyJoinCommand
 from application.services import UserService, LobbyService
 from infrastructure.logger import get_logger
 from infrastructure.websocket import WebSocketManager
 from presentation.http.v1.requests import CurrentUser
-from presentation.http.v1.responses import UserResponse, LobbyResponse
+from presentation.http.v1.responses import UserResponse
 from application.ws_message_handlers import (
     LobbyMessageHandler,
     GameWSMessageHandler,
 )
 from infrastructure.websocket.messages import (
-    WebSocketMessage,
-    WSUserConnectionMessagePayload,
+    UserLeft,
+    UserEntered,
+    UserLeftPayload,
+    UserEnteredPayload,
 )
 from infrastructure.websocket.messages.unknown_message import UnknownMessage
 
@@ -47,15 +47,13 @@ class RoomWebSocketService:
             websocket, room_id, current_user.id
         )
 
-        lobby: LobbyResponse = await self._lobby_service.join_lobby(
+        lobby = await self._lobby_service.join_lobby(
             LobbyJoinCommand(room_id, current_user.id)
         )
 
-        message = WebSocketMessage(
-            message_type=WebSocketMessageTypeEnum.USER_CONNECT,
+        message = UserEntered(
             topic=Topic.LOBBY if lobby else Topic.GAME,
-            timestamp=datetime.now().isoformat(),
-            payload=WSUserConnectionMessagePayload(
+            payload=UserEnteredPayload(
                 text=f"User {current_user.username} подключился к комнате",
                 user=UserResponse(
                     id=current_user.id,
@@ -78,23 +76,14 @@ class RoomWebSocketService:
         user_joined_room = await self._user_service.get_user_joined_room(
             current_user.id
         )
+
         if not user_joined_room:
             logger.error("Can't unsubscribe non-existing room")
             return
 
-        # logger.info("leave ")
-        # await self._lobby_service.leave_lobby(
-        #     LobbyLeaveCommand(
-        #         lobby_id=room_id,
-        #         user_id=current_user.id,
-        #     )
-        # )
-
-        message = WebSocketMessage(
-            message_type=WebSocketMessageTypeEnum.USER_LEAVE,
-            topic=(Topic.LOBBY if user_joined_room.is_lobby else Topic.GAME),
-            timestamp=datetime.now().isoformat(),
-            payload=WSUserConnectionMessagePayload(
+        message = UserLeft(
+            topic=Topic.LOBBY if user_joined_room.is_lobby else Topic.GAME,
+            payload=UserLeftPayload(
                 text=f"User {current_user.username} покинул комнату",
                 user=UserResponse(
                     id=current_user.id,
@@ -108,7 +97,6 @@ class RoomWebSocketService:
 
     async def handle_message(
         self,
-        old_message: WebSocketMessage | None,
         message: UnknownMessage,
         current_user: CurrentUser,
     ):
@@ -117,9 +105,13 @@ class RoomWebSocketService:
         match message.topic:
             case Topic.LOBBY:
                 lobby_message = message.to_lobby_message()
-                await self._lobby_handler.handle(lobby_message, current_user)
+                await self._lobby_handler.handle_message(
+                    lobby_message, current_user
+                )
             case Topic.GAME:
-                assert old_message is not None
-                await self._game_handler.handle(old_message, current_user)
+                game_message = message.to_game_message()
+                await self._game_handler.handle_message(
+                    game_message, current_user
+                )
             case _:
                 raise TypeError("Что-то тут не так")

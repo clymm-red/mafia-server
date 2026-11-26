@@ -1,9 +1,15 @@
-from pydantic import ConfigDict
+from typing import Any, Self
+
+from pydantic import ConfigDict, ValidationError
 
 from domain.enums import Topic
 from infrastructure.websocket.messages.base_message import BaseMessage
+from infrastructure.websocket.messages.game.incoming import (
+    GameMessageAdapter,
+    IncomingGameMessage,
+)
 from infrastructure.websocket.messages.lobby.incoming import (
-    LobbyAdapter,
+    LobbyMessageAdapter,
     IncomingLobbyMessage,
 )
 
@@ -15,8 +21,17 @@ class UnknownMessage(BaseMessage):
 
     model_config = ConfigDict(extra="allow")
 
-    def to_lobby_message(self) -> IncomingLobbyMessage:
-        return LobbyAdapter.validate_python(self.__pydantic_extra__)
+    @classmethod
+    def from_dict(cls, dict: dict[str, Any]) -> Self | None:
+        try:
+            return cls.model_validate(dict)
+        except ValidationError:
+            return None
 
-    def to_game_message(self):
-        pass
+    def to_lobby_message(self) -> IncomingLobbyMessage:
+        extra = self.__pydantic_extra__
+        return LobbyMessageAdapter.validate_python(extra)
+
+    def to_game_message(self) -> IncomingGameMessage:
+        extra = self.__pydantic_extra__
+        return GameMessageAdapter.validate_python(extra)

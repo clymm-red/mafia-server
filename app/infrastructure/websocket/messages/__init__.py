@@ -1,24 +1,99 @@
-from .websocket_message import WebSocketMessage
-from .game.responses.ws_game_data_payload import WSGameDataPayload
-from .game.responses.ws_game_info_payload import WSGameInfoPayload
-from .game.responses.ws_game_role_payload import WSGameRolePayload
-from .game.requests.ws_game_command_payload import WSGameCommandPayload
-from .game.responses.ws_game_new_stage_payload import WSGameNewStagePayload
-from .game.responses.ws_game_action_request_payload import (
-    WSGameActionRequestPayload,
+from .base_message import BaseMessage
+from .base_payload import BasePayload
+from .game.incoming import (
+    GameCommand,
+    GameCommandPayload,
+    GameMessageAdapter,
+    IncomingGameMessage,
 )
-from .game.responses.ws_user_connection_message_payload import (
-    WSUserConnectionMessagePayload,
+from .game.outgoing import (
+    GameData,
+    GameInfo,
+    GameRole,
+    GameError,
+    GameEvent,
+    GameStart,
+    GameFinish,
+    GameNewStage,
+    GameDataPayload,
+    GameInfoPayload,
+    GameRolePayload,
+    GameErrorPayload,
+    GameEventPayload,
+    GameStartPayload,
+    GameActionRequest,
+    GameFinishPayload,
+    GameNewStagePayload,
+    OutgoingGameMessage,
+    GameActionRequestPayload,
+)
+from .lobby.incoming import (
+    KickUser,
+    StartGame,
+    LeaveLobby,
+    DeleteLobby,
+    KickUserPayload,
+    StartGamePayload,
+    LeaveLobbyPayload,
+    DeleteLobbyPayload,
+    LobbyMessageAdapter,
+    IncomingLobbyMessage,
+)
+from .lobby.outgoing import (
+    UserLeft,
+    LobbyError,
+    UserEntered,
+    UserLeftPayload,
+    LobbyErrorPayload,
+    UserEnteredPayload,
+    OutgoingLobbyMessage,
 )
 
+
+OutgoingMessage = OutgoingLobbyMessage | OutgoingGameMessage
 
 __all__ = [
-    "WSGameActionRequestPayload",
-    "WSGameCommandPayload",
-    "WSGameDataPayload",
-    "WSGameInfoPayload",
-    "WSGameNewStagePayload",
-    "WSGameRolePayload",
-    "WebSocketMessage",
-    "WSUserConnectionMessagePayload",
+    "BaseMessage",
+    "BasePayload",
+    "DeleteLobby",
+    "DeleteLobbyPayload",
+    "GameActionRequest",
+    "GameActionRequestPayload",
+    "GameCommand",
+    "GameCommandPayload",
+    "GameData",
+    "GameDataPayload",
+    "GameError",
+    "GameErrorPayload",
+    "GameEvent",
+    "GameEventPayload",
+    "GameFinish",
+    "GameFinishPayload",
+    "GameInfo",
+    "GameInfoPayload",
+    "GameMessageAdapter",
+    "GameNewStage",
+    "GameNewStagePayload",
+    "GameRole",
+    "GameRolePayload",
+    "GameStart",
+    "GameStartPayload",
+    "IncomingGameMessage",
+    "IncomingLobbyMessage",
+    "KickUser",
+    "KickUserPayload",
+    "LeaveLobby",
+    "LeaveLobbyPayload",
+    "LobbyError",
+    "LobbyErrorPayload",
+    "LobbyMessageAdapter",
+    "OutgoingGameMessage",
+    "OutgoingLobbyMessage",
+    "OutgoingMessage",
+    "StartGame",
+    "StartGamePayload",
+    "UserEntered",
+    "UserEnteredPayload",
+    "UserLeft",
+    "UserLeftPayload",
 ]

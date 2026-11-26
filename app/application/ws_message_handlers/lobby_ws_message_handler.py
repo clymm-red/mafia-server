@@ -4,7 +4,6 @@ from typing import assert_never
 from dishka import FromDishka
 
 from domain.exceptions import RoomNotFoundException
-from application.commands import LobbyLeaveCommand
 from application.services import GameService, GameManagerService
 from infrastructure.logger import get_logger
 from infrastructure.websocket import WebSocketManager
@@ -30,40 +29,38 @@ class LobbyMessageHandler:
         lobby_service: FromDishka[LobbyService],
         lobby_repository: FromDishka[LobbyRepository],
         game_manager: FromDishka[GameManagerService],
-        notification_service: FromDishka[WebSocketManager],
         websocket_manager: FromDishka[WebSocketManager],
     ):
         self._game_service = game_service
+        self._game_manager = game_manager
         self._lobby_service = lobby_service
         self._lobby_repository = lobby_repository
-        self._notification_service = notification_service
-        self._game_manager = game_manager
         self._websocket_manager = websocket_manager
 
-    async def handle(
+    async def handle_message(
         self, message: IncomingLobbyMessage, current_user: CurrentUser
     ):
         """
         Обрабатывает Lobby Websocket Message взависимости от его типа
         """
         logger.debug("handle")
-        logger.debug(message.model_dump_json())
+        logger.debug(message.to_json())
 
         payload = message.payload
 
         match payload:
             case StartGamePayload():
-                await self.__handle_start(payload)
+                await self.__start_game(payload)
             case KickUserPayload():
-                await self.__handle_kick(payload)
+                await self.__kick_user(payload)
             case DeleteLobbyPayload():
-                await self.__handle_delete(payload, current_user.id)
+                await self.__delete_lobby(payload, current_user.id)
             case LeaveLobbyPayload():
-                await self.__handle_leave(payload, current_user.id)
+                await self.__leave_lobby(payload, current_user.id)
             case _:
                 assert_never(payload)
 
-    async def __handle_start(self, payload: StartGamePayload):
+    async def __start_game(self, payload: StartGamePayload):
         lobby_id = payload.room_id
         lobby = await self._lobby_repository.get_lobby_by_id(lobby_id)
 
@@ -80,27 +77,21 @@ class LobbyMessageHandler:
         logger.debug("calling start game")
         await self._game_manager.start_game(new_game)
 
-    async def __handle_kick(self, payload: KickUserPayload):
+    async def __kick_user(self, payload: KickUserPayload):
         lobby_id = payload.room_id
         user_id = payload.target_id
 
-        lobby_leave_command = LobbyLeaveCommand(lobby_id, user_id)
-
-        await self._lobby_service.leave_lobby(lobby_leave_command)
+        await self._lobby_service.leave_lobby(user_id, lobby_id)
         await self._websocket_manager.disconnect(lobby_id, user_id)
 
-    async def __handle_delete(self, payload: DeleteLobbyPayload, user_id: UUID):
+    async def __delete_lobby(self, payload: DeleteLobbyPayload, user_id: UUID):
         lobby_id = payload.room_id
 
-        lobby_leave_command = LobbyLeaveCommand(lobby_id, user_id)
-
-        await self._lobby_service.leave_lobby(lobby_leave_command)
+        await self._lobby_service.leave_lobby(user_id, lobby_id)
         await self._websocket_manager.delete_all_connections(lobby_id)
 
-    async def __handle_leave(self, payload: LeaveLobbyPayload, user_id: UUID):
+    async def __leave_lobby(self, payload: LeaveLobbyPayload, user_id: UUID):
         lobby_id = payload.room_id
 
-        lobby_leave_command = LobbyLeaveCommand(lobby_id, user_id)
-
-        await self._lobby_service.leave_lobby(lobby_leave_command)
+        await self._lobby_service.leave_lobby(user_id, lobby_id)
         await self._websocket_manager.disconnect(lobby_id, user_id)

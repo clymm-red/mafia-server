@@ -95,7 +95,6 @@ class ApplicationProvider(Provider):
             lobby_repository,
             game_manager,
             websocket_manager,
-            websocket_manager,
         )
 
     @provide(scope=Scope.REQUEST)

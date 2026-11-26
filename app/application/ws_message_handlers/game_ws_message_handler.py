@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from dishka import FromDishka
 
 from domain.enums import (
@@ -15,9 +13,9 @@ from infrastructure.logger import get_logger
 from infrastructure.websocket import WebSocketManager
 from presentation.http.v1.requests import CurrentUser
 from infrastructure.websocket.messages import (
-    WebSocketMessage,
-    WSGameInfoPayload,
-    WSGameCommandPayload,
+    GameError,
+    GameErrorPayload,
+    IncomingGameMessage,
 )
 
 
@@ -35,14 +33,14 @@ class GameWSMessageHandler:
         self._game_manager = game_manager
         self._websocket_manager = websocket_manager
 
-    async def handle(
-        self, message: WebSocketMessage, current_user: CurrentUser
+    async def handle_message(
+        self, message: IncomingGameMessage, current_user: CurrentUser
     ):
         """
         Обрабатывает Websocket Message взависимости от его типа
         """
         if message.message_type == WebSocketMessageTypeEnum.COMMAND:
-            ws_command = WSGameCommandPayload(**message.payload.model_dump())
+            ws_command = message.payload
             game_command = GameCommand(
                 actor_id=current_user.id,
                 room_id=ws_command.room_id,
@@ -69,11 +67,8 @@ class GameWSMessageHandler:
                         f"in room {ws_command.room_id}: {e.args}"
                     )
                     await self._websocket_manager.send_to_one(
-                        WebSocketMessage(
-                            message_type=WebSocketMessageTypeEnum.ERROR,
-                            topic=Topic(e.topic),
-                            timestamp=datetime.now().isoformat(),
-                            payload=WSGameInfoPayload(
+                        GameError(
+                            payload=GameErrorPayload(
                                 text=e.message or "Неизвестная ошибка"
                             ),
                         ),
@@ -107,11 +102,8 @@ class GameWSMessageHandler:
                         f"in room {ws_command.room_id}: {e.args}"
                     )
                     await self._websocket_manager.send_to_one(
-                        WebSocketMessage(
-                            message_type=WebSocketMessageTypeEnum.ERROR,
-                            topic=Topic(e.topic),
-                            timestamp=datetime.now().isoformat(),
-                            payload=WSGameInfoPayload(
+                        GameError(
+                            payload=GameErrorPayload(
                                 text=e.message or "Неизвестная ошибка"
                             ),
                         ),
