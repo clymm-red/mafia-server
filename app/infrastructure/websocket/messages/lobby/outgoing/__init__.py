@@ -1,16 +1,13 @@
-from .user_left import UserLeft, UserLeftPayload
-from .lobby_error import LobbyError, LobbyErrorPayload
-from .user_entered import UserEntered, UserEnteredPayload
+from .user_left import UserLeft
+from .lobby_error import LobbyError
+from .user_entered import UserEntered
 
 
 OutgoingLobbyMessage = UserEntered | UserLeft | LobbyError
 
 __all__ = [
-    "LobbyError",
-    "LobbyErrorPayload",
     "OutgoingLobbyMessage",
+    "LobbyError",
     "UserEntered",
-    "UserEnteredPayload",
     "UserLeft",
-    "UserLeftPayload",
 ]

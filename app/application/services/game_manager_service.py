@@ -29,6 +29,10 @@ from infrastructure.websocket.messages import (
     GameFinish,
     GameNewStage,
     GameActionRequest,
+)
+
+# TODO: Передавать Player напрямую
+from infrastructure.websocket.messages.game.outgoing.game_data import (
     GamePlayerPayload,
 )
 
