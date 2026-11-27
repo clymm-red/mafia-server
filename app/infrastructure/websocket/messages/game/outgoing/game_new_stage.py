@@ -1,12 +1,12 @@
 from typing import Self, Literal
 
-from domain.enums import MessageType, GameStageEnum
+from domain.enums import GameStage, MessageType
 from infrastructure.websocket.messages.base_message import BaseMessage
 from infrastructure.websocket.messages.base_payload import BasePayload
 
 
 class GameNewStagePayload(BasePayload):
-    new_stage: GameStageEnum
+    new_stage: GameStage
     text: str
 
 
@@ -15,5 +15,5 @@ class GameNewStage(BaseMessage):
     payload: GameNewStagePayload
 
     @classmethod
-    def create(cls, new_stage: GameStageEnum, text: str) -> Self:
+    def create(cls, new_stage: GameStage, text: str) -> Self:
         return cls(payload=GameNewStagePayload(new_stage=new_stage, text=text))

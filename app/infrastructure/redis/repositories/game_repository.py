@@ -8,7 +8,7 @@ from domain.enums import (
     Topic,
     RoleEnum,
     TeamEnum,
-    GameStageEnum,
+    GameStage,
     GameStatusEnum,
     PlayerStatusEnum,
 )
@@ -359,7 +359,7 @@ class GameRepository:
             start_date=datetime.fromisoformat(game_model.start_date),
             winner_team=TeamEnum(game_model.winner_team),
             game_status=GameStatusEnum(game_model.game_status),
-            game_stage=GameStageEnum(game_model.game_stage),
+            game_stage=GameStage(game_model.game_stage),
             finish_date=datetime.fromisoformat(game_model.finish_date)
             if game_model.finish_date
             else None,

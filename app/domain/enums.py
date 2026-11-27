@@ -32,7 +32,7 @@ class GameStatusEnum(StrEnum):
     FINISHED = "Finished"
 
 
-class GameStageEnum(StrEnum):
+class GameStage(StrEnum):
     DAY_INTRO = "DayIntro"
     DAY_TALK = "DayTalk"
     DAY_VOTE = "DayVote"

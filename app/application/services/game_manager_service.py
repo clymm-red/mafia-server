@@ -7,7 +7,7 @@ from dishka import FromDishka, AsyncContainer
 from domain.enums import (
     Topic,
     RoleEnum,
-    GameStageEnum,
+    GameStage,
     GameAction,
     PlayerStatusEnum,
 )
@@ -167,33 +167,33 @@ class GameManagerService:
                     stage_update_listener.clear()
 
                     match game.game_stage:
-                        case GameStageEnum.DAY_INTRO:
+                        case GameStage.DAY_INTRO:
                             game = await self._game_service.get_game_by_id(
                                 game.id
                             )
                             message = f"Знакомство {game.game_stage.value}"
 
                             await self.announce_new_stage(
-                                game.id, GameStageEnum.DAY_INTRO, message
+                                game.id, GameStage.DAY_INTRO, message
                             )
 
                             await self.show_roles(game)
 
                             await self.conduct_day_talk_stage(game.id, 30)
 
-                        case GameStageEnum.NIGHT:
+                        case GameStage.NIGHT:
                             game = await self._game_service.get_game_by_id(
                                 game.id
                             )
                             message = f"Город засыпаает {game.game_stage.value}"
 
                             await self.announce_new_stage(
-                                game.id, GameStageEnum.NIGHT, message
+                                game.id, GameStage.NIGHT, message
                             )
 
                             await self.conduct_night_stage(game.id)
 
-                        case GameStageEnum.DAY_TALK:
+                        case GameStage.DAY_TALK:
                             game = await self._game_service.get_game_by_id(
                                 game.id
                             )
@@ -202,12 +202,12 @@ class GameManagerService:
                                 f"{game.game_stage.value}"
                             )
                             await self.announce_new_stage(
-                                game.id, GameStageEnum.DAY_TALK, message
+                                game.id, GameStage.DAY_TALK, message
                             )
 
                             await self.conduct_day_talk_stage(game.id)
 
-                        case GameStageEnum.DAY_VOTE:
+                        case GameStage.DAY_VOTE:
                             game = await self._game_service.get_game_by_id(
                                 game.id
                             )
@@ -216,7 +216,7 @@ class GameManagerService:
                                 f"{game.game_stage.value}"
                             )
                             await self.announce_new_stage(
-                                game.id, GameStageEnum.DAY_VOTE, message
+                                game.id, GameStage.DAY_VOTE, message
                             )
 
                             await self.conduct_day_vote_stage(game.id)
@@ -578,7 +578,7 @@ class GameManagerService:
         if len(most_voted) > 1 and not second_stage_candidates:
             await self.announce_new_stage(
                 game.id,
-                GameStageEnum.DAY_VOTE,
+                GameStage.DAY_VOTE,
                 f"День {game.round_count} Голосование "
                 f"{game.game_stage.value} Второй этап",
             )
@@ -625,7 +625,7 @@ class GameManagerService:
             )
 
     async def announce_new_stage(
-        self, game_id: str, new_stage: GameStageEnum, message: str
+        self, game_id: str, new_stage: GameStage, message: str
     ):
         next_stage_message = GameNewStage.create(
             new_stage=new_stage, text=message

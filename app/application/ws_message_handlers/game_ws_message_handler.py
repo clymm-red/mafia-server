@@ -2,7 +2,7 @@ from typing import assert_never
 
 from dishka import FromDishka
 
-from domain.enums import Topic, GameStageEnum, GameAction
+from domain.enums import Topic, GameStage, GameAction
 from domain.exceptions import DomainException, PlayerDisabledException
 from application.services import GameService, GameManagerService
 from infrastructure.logger import get_logger
@@ -61,7 +61,7 @@ class GameWSMessageHandler:
         game = await self._game_service.get_game_by_id(payload.room_id)
 
         try:
-            if game.game_stage != GameStageEnum.NIGHT:
+            if game.game_stage != GameStage.NIGHT:
                 raise DomainException(Topic.GAME, "Неожиданное сообщение")
 
             result = await self._game_service.process_role_action(
@@ -91,7 +91,7 @@ class GameWSMessageHandler:
         game = await self._game_service.get_game_by_id(payload.room_id)
 
         try:
-            if game.game_stage != GameStageEnum.DAY_VOTE:
+            if game.game_stage != GameStage.DAY_VOTE:
                 raise DomainException(Topic.GAME, "Неожиданное сообщение")
 
             await self._game_service.process_vote(
@@ -122,8 +122,8 @@ class GameWSMessageHandler:
         game = await self._game_service.get_game_by_id(payload.room_id)
 
         if game.game_stage in (
-            GameStageEnum.DAY_TALK,
-            GameStageEnum.DAY_INTRO,
+            GameStage.DAY_TALK,
+            GameStage.DAY_INTRO,
         ):
             await self._game_manager.set_event(
                 payload.room_id, GameAction.END_TALK

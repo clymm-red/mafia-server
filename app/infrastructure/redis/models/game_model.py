@@ -2,7 +2,7 @@ from uuid import UUID
 from typing import Any
 from datetime import datetime
 
-from domain.enums import TeamEnum, GameStageEnum, GameStatusEnum
+from domain.enums import TeamEnum, GameStage, GameStatusEnum
 
 
 class GameModel:
@@ -14,7 +14,7 @@ class GameModel:
         round_count: int,
         start_date: str,
         game_status: GameStatusEnum,
-        game_stage: GameStageEnum,
+        game_stage: GameStage,
         winner_team: TeamEnum | None,
         finish_date: str | None,
     ):

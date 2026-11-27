@@ -5,8 +5,8 @@ from datetime import datetime
 from domain.enums import (
     RoleEnum,
     TeamEnum,
+    GameStage,
     MessageType,
-    GameStageEnum,
     GameStatusEnum,
 )
 from infrastructure.websocket.messages.base_message import BaseMessage
@@ -30,7 +30,7 @@ class GameDataPayload(BasePayload):
 
     winner_team: TeamEnum | None
     game_status: GameStatusEnum
-    game_stage: GameStageEnum
+    game_stage: GameStage
     finish_date: datetime | None
     round_count: int
 
@@ -49,7 +49,7 @@ class GameData(BaseMessage):
         assigned_role: RoleEnum,
         winner_team: TeamEnum | None,
         game_status: GameStatusEnum,
-        game_stage: GameStageEnum,
+        game_stage: GameStage,
         finish_date: datetime | None,
         round_count: int,
     ) -> Self:

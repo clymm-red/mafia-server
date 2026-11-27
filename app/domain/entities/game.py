@@ -5,7 +5,7 @@ from domain.enums import (
     Topic,
     RoleEnum,
     TeamEnum,
-    GameStageEnum,
+    GameStage,
     GameStatusEnum,
     PlayerStatusEnum,
 )
@@ -27,7 +27,7 @@ class Game:
 
     winner_team: TeamEnum | None
     game_status: GameStatusEnum
-    game_stage: GameStageEnum
+    game_stage: GameStage
     finish_date: datetime | None
     round_count: int
 
@@ -39,7 +39,7 @@ class Game:
         start_date: datetime | None = None,
         winner_team: TeamEnum | None = None,
         game_status: GameStatusEnum = GameStatusEnum.IN_PROGRESS,
-        game_stage: GameStageEnum = GameStageEnum.DAY_INTRO,
+        game_stage: GameStage = GameStage.DAY_INTRO,
         finish_date: datetime | None = None,
         round_count: int = 0,
     ):
@@ -184,21 +184,21 @@ class Game:
         players[index_max].die()
         return players[index_max]
 
-    async def get_next_stage(self) -> GameStageEnum:
+    async def get_next_stage(self) -> GameStage:
         """
         Переводит игру на следующую стадию и возвращает эту стадию
         """
         logger.debug(f"{self.id} get_next_stage")
         match self.game_stage:
-            case GameStageEnum.DAY_INTRO:
-                self.game_stage = GameStageEnum.NIGHT
-            case GameStageEnum.NIGHT:
-                self.game_stage = GameStageEnum.DAY_TALK
-            case GameStageEnum.DAY_TALK:
-                self.game_stage = GameStageEnum.DAY_VOTE
-            case GameStageEnum.DAY_VOTE:
+            case GameStage.DAY_INTRO:
+                self.game_stage = GameStage.NIGHT
+            case GameStage.NIGHT:
+                self.game_stage = GameStage.DAY_TALK
+            case GameStage.DAY_TALK:
+                self.game_stage = GameStage.DAY_VOTE
+            case GameStage.DAY_VOTE:
                 await self.clear_players_votes()
-                self.game_stage = GameStageEnum.NIGHT
+                self.game_stage = GameStage.NIGHT
 
         return self.game_stage
 

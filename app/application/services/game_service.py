@@ -3,7 +3,7 @@ from collections import defaultdict
 
 from dishka import FromDishka
 
-from domain.enums import Topic, RoleEnum, GameStageEnum
+from domain.enums import Topic, RoleEnum, GameStage
 from domain.entities import Game, Lobby, Player
 from domain.services import RoleDistributionService
 from domain.exceptions import DomainException, RoomNotFoundException
@@ -145,7 +145,7 @@ class GameService:
         prev_stage = game.game_stage
         game.game_stage = await game.get_next_stage()
 
-        if game.game_stage == GameStageEnum.DAY_TALK:
+        if game.game_stage == GameStage.DAY_TALK:
             game.round_count += 1
             logger.debug(f"round count incremented {game.round_count}")
 
