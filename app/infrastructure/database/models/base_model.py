@@ -11,6 +11,6 @@ class Base(AsyncAttrs, DeclarativeBase):
     id: Mapped[UUID] = mapped_column(primary_key=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
-    def __init_(self, **kwargs):
+    def __init__(self, **kwargs):
         for name, value in kwargs.items():
             setattr(self, name, value)
