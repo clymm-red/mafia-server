@@ -17,6 +17,7 @@ from application.services import (
 from infrastructure.logger import get_logger
 from presentation.http.v1.requests import UserCreate, CurrentUser
 from presentation.http.v1.responses import (
+    AccessToken,
     RoomResponse,
     UserResponse,
 )
@@ -68,7 +69,7 @@ def delete_refresh_token_from_cookie(response: Response):
     )
 
 
-@user_router.post("/login")
+@user_router.post("/login", response_model=AccessToken)
 @inject
 async def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
@@ -86,7 +87,7 @@ async def login(
         raise HTTPException(400, e.args)
 
 
-@user_router.post("/register")
+@user_router.post("/register", response_model=AccessToken)
 @inject
 async def register(
     request: UserCreate,
@@ -105,7 +106,7 @@ async def register(
         raise HTTPException(405, "Username already exists")
 
 
-@user_router.post("/refresh")
+@user_router.post("/refresh", response_model=AccessToken)
 @inject
 async def refresh(
     security_service: FromDishka[SecurityService],

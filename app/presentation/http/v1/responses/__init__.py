@@ -1,3 +1,4 @@
+from .access_token import AccessToken
 from .room_response import RoomResponse
 from .user_response import UserResponse
 from .lobby_response import LobbyResponse
@@ -12,6 +13,7 @@ __all__ = [
     "PlayerResponse",
     "RoomResponse",
     "TokenPair",
+    "AccessToken",
     "UserResponse",
     "UserCreateResponse",
     "LobbyLeaveResponse",

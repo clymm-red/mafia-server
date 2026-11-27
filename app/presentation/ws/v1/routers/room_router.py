@@ -70,7 +70,7 @@ async def room_websocket(
                 logger.error(f"Error on unsubscribe: {e.args}")
 
 
-def _extract_token(websocket):
+def _extract_token(websocket: WebSocket):
     token = websocket.headers.get("authorization", "").removeprefix("Bearer ")
 
     if not token:

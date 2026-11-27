@@ -1,3 +1,5 @@
+from typing import assert_never
+
 from dishka import FromDishka
 from fastapi import WebSocket
 
@@ -98,20 +100,16 @@ class RoomWebSocketService:
     async def handle_message(
         self,
         message: UnknownMessage,
-        current_user: CurrentUser,
+        user: CurrentUser,
     ):
         logger.debug("handle_message")
 
         match message.topic:
             case Topic.LOBBY:
                 lobby_message = message.to_lobby_message()
-                await self._lobby_handler.handle_message(
-                    lobby_message, current_user
-                )
+                await self._lobby_handler.handle_message(lobby_message, user)
             case Topic.GAME:
                 game_message = message.to_game_message()
-                await self._game_handler.handle_message(
-                    game_message, current_user
-                )
+                await self._game_handler.handle_message(game_message, user)
             case _:
-                raise TypeError("Что-то тут не так")
+                assert_never(message.topic)

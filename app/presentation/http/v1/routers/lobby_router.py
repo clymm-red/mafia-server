@@ -11,7 +11,10 @@ from presentation.http.v1.responses import LobbyResponse
 lobby_router = APIRouter(prefix="/lobbies", tags=["lobby"])
 
 
-@lobby_router.get("/")
+@lobby_router.get(
+    "/",
+    response_model=list[LobbyResponse],
+)
 @inject
 async def get_all_lobbies(
     lobby_service: FromDishka[LobbyService],
@@ -35,12 +38,15 @@ async def create_lobby(
     return result
 
 
-@lobby_router.get("/{lobby_id}")
+@lobby_router.get(
+    "/{lobby_id}",
+    response_model=LobbyResponse,
+)
 @inject
 async def get_lobby_by_id(
     lobby_id: str,
-    current_user: FromDishka[CurrentUser],
     lobby_service: FromDishka[LobbyService],
+    _: FromDishka[CurrentUser],
 ):
     result = await lobby_service.get_lobby(lobby_id)
     return result
