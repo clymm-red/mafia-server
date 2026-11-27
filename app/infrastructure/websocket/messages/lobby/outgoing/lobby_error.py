@@ -1,6 +1,6 @@
-from typing import Literal
+from typing import Self, Literal
 
-from domain.enums import Topic, WebSocketMessageTypeEnum
+from domain.enums import MessageType
 from infrastructure.websocket.messages.base_message import BaseMessage
 from infrastructure.websocket.messages.base_payload import BasePayload
 
@@ -10,8 +10,9 @@ class LobbyErrorPayload(BasePayload):
 
 
 class LobbyError(BaseMessage):
-    message_type: Literal[WebSocketMessageTypeEnum.ERROR] = (
-        WebSocketMessageTypeEnum.ERROR
-    )
-    topic: Literal[Topic.LOBBY] = Topic.LOBBY
+    message_type: Literal[MessageType.ERROR] = MessageType.ERROR
     payload: LobbyErrorPayload
+
+    @classmethod
+    def create(cls, text: str) -> Self:
+        return cls(payload=LobbyErrorPayload(text=text))

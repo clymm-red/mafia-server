@@ -9,18 +9,12 @@ from application.services import UserService, LobbyService
 from infrastructure.logger import get_logger
 from infrastructure.websocket import WebSocketManager
 from presentation.http.v1.requests import CurrentUser
-from presentation.http.v1.responses import UserResponse
 from application.ws_message_handlers import (
     LobbyMessageHandler,
     GameWSMessageHandler,
 )
-from infrastructure.websocket.messages import (
-    UserLeft,
-    UserEntered,
-    UserLeftPayload,
-    UserEnteredPayload,
-)
-from infrastructure.websocket.messages.unknown_message import UnknownMessage
+from infrastructure.websocket.messages import UserLeft, UserEntered
+from infrastructure.websocket.messages.incoming_message import IncomingMessage
 
 
 logger = get_logger(f"{__name__}.RoomWebSocketService")
@@ -49,21 +43,13 @@ class RoomWebSocketService:
             websocket, room_id, current_user.id
         )
 
-        lobby = await self._lobby_service.join_lobby(
+        await self._lobby_service.join_lobby(
             LobbyJoinCommand(room_id, current_user.id)
         )
 
-        message = UserEntered(
-            topic=Topic.LOBBY if lobby else Topic.GAME,
-            payload=UserEnteredPayload(
-                text=f"User {current_user.username} подключился к комнате",
-                user=UserResponse(
-                    id=current_user.id,
-                    name=current_user.username,
-                    email=current_user.email,
-                ),
-                lobby=lobby if lobby else None,
-            ),
+        message = UserEntered.create(
+            id=current_user.id,
+            name=current_user.username,
         )
         await self._websocket_manager.send_broadcast(message, room_id)
 
@@ -83,23 +69,16 @@ class RoomWebSocketService:
             logger.error("Can't unsubscribe non-existing room")
             return
 
-        message = UserLeft(
-            topic=Topic.LOBBY if user_joined_room.is_lobby else Topic.GAME,
-            payload=UserLeftPayload(
-                text=f"User {current_user.username} покинул комнату",
-                user=UserResponse(
-                    id=current_user.id,
-                    name=current_user.username,
-                    email=current_user.email,
-                ),
-                lobby=None,
-            ),
+        message = UserLeft.create(
+            id=current_user.id,
+            name=current_user.username,
         )
+
         await self._websocket_manager.send_broadcast(message, room_id)
 
     async def handle_message(
         self,
-        message: UnknownMessage,
+        message: IncomingMessage,
         user: CurrentUser,
     ):
         logger.debug("handle_message")

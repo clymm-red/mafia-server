@@ -39,7 +39,7 @@ class GameStageEnum(StrEnum):
     NIGHT = "Night"
 
 
-class WebSocketMessageTypeEnum(StrEnum):
+class MessageType(StrEnum):
     """WebSocket message type"""
 
     COMMAND = "Command"

@@ -2,8 +2,8 @@ from dishka import FromDishka
 
 from domain.enums import (
     Topic,
+    MessageType,
     GameStageEnum,
-    WebSocketMessageTypeEnum,
     WebSocketGameCommandActionTypeEnum,
 )
 from domain.exceptions import DomainException, PlayerDisabledException
@@ -39,7 +39,7 @@ class GameWSMessageHandler:
         """
         Обрабатывает Websocket Message взависимости от его типа
         """
-        if message.message_type == WebSocketMessageTypeEnum.COMMAND:
+        if message.message_type == MessageType.COMMAND:
             ws_command = message.payload
             game_command = GameCommand(
                 actor_id=current_user.id,

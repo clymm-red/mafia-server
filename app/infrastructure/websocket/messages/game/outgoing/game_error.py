@@ -1,6 +1,6 @@
 from typing import Literal
 
-from domain.enums import Topic, WebSocketMessageTypeEnum
+from domain.enums import Topic, MessageType
 from infrastructure.websocket.messages.base_message import BaseMessage
 from infrastructure.websocket.messages.base_payload import BasePayload
 
@@ -10,8 +10,6 @@ class GameErrorPayload(BasePayload):
 
 
 class GameError(BaseMessage):
-    message_type: Literal[WebSocketMessageTypeEnum.ERROR] = (
-        WebSocketMessageTypeEnum.ERROR
-    )
+    message_type: Literal[MessageType.ERROR] = MessageType.ERROR
     topic: Literal[Topic.GAME] = Topic.GAME
     payload: GameErrorPayload

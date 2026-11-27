@@ -14,7 +14,7 @@ from infrastructure.websocket.messages.lobby.incoming import (
 )
 
 
-class UnknownMessage(BaseMessage):
+class IncomingMessage(BaseMessage):
     """Тип сообщения в который превращается словарь"""
 
     topic: Topic

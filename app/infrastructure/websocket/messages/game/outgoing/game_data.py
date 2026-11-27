@@ -5,9 +5,9 @@ from domain.enums import (
     Topic,
     RoleEnum,
     TeamEnum,
+    MessageType,
     GameStageEnum,
     GameStatusEnum,
-    WebSocketMessageTypeEnum,
 )
 from infrastructure.websocket.messages.base_message import BaseMessage
 from infrastructure.websocket.messages.base_payload import BasePayload
@@ -30,8 +30,6 @@ class GameDataPayload(BasePayload):
 
 
 class GameData(BaseMessage):
-    message_type: Literal[WebSocketMessageTypeEnum.GAME_DATA] = (
-        WebSocketMessageTypeEnum.GAME_DATA
-    )
+    message_type: Literal[MessageType.GAME_DATA] = MessageType.GAME_DATA
     topic: Literal[Topic.GAME] = Topic.GAME
     payload: GameDataPayload

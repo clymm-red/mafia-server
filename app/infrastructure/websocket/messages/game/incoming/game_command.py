@@ -3,7 +3,7 @@ from typing import Literal
 
 from domain.enums import (
     Topic,
-    WebSocketMessageTypeEnum,
+    MessageType,
     WebSocketGameCommandActionTypeEnum,
 )
 from infrastructure.websocket.messages.base_message import BaseMessage
@@ -18,8 +18,6 @@ class GameCommandPayload(BasePayload):
 
 
 class GameCommand(BaseMessage):
-    message_type: Literal[WebSocketMessageTypeEnum.COMMAND] = (
-        WebSocketMessageTypeEnum.COMMAND
-    )
+    message_type: Literal[MessageType.COMMAND] = MessageType.COMMAND
     topic: Literal[Topic.GAME] = Topic.GAME
     payload: GameCommandPayload

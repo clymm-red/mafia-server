@@ -15,9 +15,8 @@ from infrastructure.websocket.messages import (
     GameError,
     LobbyError,
     GameErrorPayload,
-    LobbyErrorPayload,
 )
-from infrastructure.websocket.messages.unknown_message import UnknownMessage
+from infrastructure.websocket.messages.incoming_message import IncomingMessage
 
 
 room_router = APIRouter()
@@ -89,7 +88,7 @@ async def _listen_websocket_messages(
         raw_message: dict[str, Any] = await websocket.receive_json()
         logger.debug(f"{raw_message} {type(raw_message)}")
 
-        message = UnknownMessage.from_dict(raw_message)
+        message = IncomingMessage.from_dict(raw_message)
 
         try:
             if message:
@@ -100,9 +99,7 @@ async def _listen_websocket_messages(
             )
             match e.topic:
                 case Topic.LOBBY:
-                    error = LobbyError(
-                        payload=LobbyErrorPayload(text=e.message)
-                    )
+                    error = LobbyError.create(text=e.message)
                 case Topic.GAME:
                     error = GameError(payload=GameErrorPayload(text=e.message))
             await websocket.send_text(error.to_json())
@@ -111,7 +108,7 @@ async def _listen_websocket_messages(
 async def _handle_message(
     container: FromDishka[AsyncContainer],
     current_user: CurrentUser,
-    ws_message: UnknownMessage,
+    ws_message: IncomingMessage,
 ):
     async with container() as request_container:
         room_service = await request_container.get(RoomWebSocketService)

@@ -1,20 +1,20 @@
-from typing import Literal
+from uuid import UUID
+from typing import Self, Literal
 
-from domain.enums import Topic, WebSocketMessageTypeEnum
-from presentation.http.v1.responses import UserResponse, LobbyResponse
+from domain.enums import MessageType
 from infrastructure.websocket.messages.base_message import BaseMessage
 from infrastructure.websocket.messages.base_payload import BasePayload
 
 
 class UserEnteredPayload(BasePayload):
-    text: str
-    user: UserResponse
-    lobby: LobbyResponse | None
+    id: UUID
+    name: str
 
 
 class UserEntered(BaseMessage):
-    message_type: Literal[WebSocketMessageTypeEnum.USER_CONNECT] = (
-        WebSocketMessageTypeEnum.USER_CONNECT
-    )
-    topic: Topic
+    message_type: Literal[MessageType.USER_CONNECT] = MessageType.USER_CONNECT
     payload: UserEnteredPayload
+
+    @classmethod
+    def create(cls, id: UUID, name: str) -> Self:
+        return cls(payload=UserEnteredPayload(id=id, name=name))

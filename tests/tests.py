@@ -10,7 +10,7 @@ from starlette.websockets import WebSocketDisconnect
 
 from domain.enums import (
     Topic,
-    WebSocketMessageTypeEnum,
+    MessageType,
 )
 from infrastructure.websocket.messages.lobby.incoming import (
     LeaveLobby,
@@ -52,11 +52,8 @@ def test_create_and_join_lobby(client: TestClient, redis_client, players):
             for existing in sessions:
                 message = json.loads(existing.receive_text())
                 if not lobby_admin:
-                    lobby_admin.update(message["payload"]["user"])
-                assert (
-                    message["messageType"]
-                    == WebSocketMessageTypeEnum.USER_CONNECT
-                )
+                    lobby_admin.update(message["payload"])
+                assert message["messageType"] == MessageType.USER_CONNECT
 
         for i in range(len(sessions) - 1, -1, -1):
             sessions[i].send_text(
