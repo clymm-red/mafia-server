@@ -1,6 +1,6 @@
-from typing import Literal
+from typing import Self, Literal
 
-from domain.enums import Topic, MessageType
+from domain.enums import MessageType
 from infrastructure.websocket.messages.base_message import BaseMessage
 from infrastructure.websocket.messages.base_payload import BasePayload
 
@@ -11,5 +11,8 @@ class GameStartPayload(BasePayload):
 
 class GameStart(BaseMessage):
     message_type: Literal[MessageType.GAME_START] = MessageType.GAME_START
-    topic: Literal[Topic.GAME] = Topic.GAME
     payload: GameStartPayload
+
+    @classmethod
+    def create(cls, text: str) -> Self:
+        return cls(payload=GameStartPayload(text=text))

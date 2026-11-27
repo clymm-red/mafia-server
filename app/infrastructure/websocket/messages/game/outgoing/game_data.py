@@ -1,8 +1,8 @@
-from typing import Literal
+from uuid import UUID
+from typing import Self, Literal
 from datetime import datetime
 
 from domain.enums import (
-    Topic,
     RoleEnum,
     TeamEnum,
     MessageType,
@@ -11,13 +11,19 @@ from domain.enums import (
 )
 from infrastructure.websocket.messages.base_message import BaseMessage
 from infrastructure.websocket.messages.base_payload import BasePayload
-from presentation.http.v1.responses.player_response import PlayerResponse
+
+
+class GamePlayerPayload(BasePayload):
+    id: UUID
+    name: str
+    email: str
+    is_alive: bool
 
 
 class GameDataPayload(BasePayload):
     id: str
-    players: list[PlayerResponse]
-    admin: PlayerResponse
+    players: list[GamePlayerPayload]
+    admin: GamePlayerPayload
 
     start_date: datetime
     assigned_role: RoleEnum
@@ -31,5 +37,33 @@ class GameDataPayload(BasePayload):
 
 class GameData(BaseMessage):
     message_type: Literal[MessageType.GAME_DATA] = MessageType.GAME_DATA
-    topic: Literal[Topic.GAME] = Topic.GAME
     payload: GameDataPayload
+
+    @classmethod
+    def create(
+        cls,
+        id: str,
+        players: list[GamePlayerPayload],
+        admin: GamePlayerPayload,
+        start_date: datetime,
+        assigned_role: RoleEnum,
+        winner_team: TeamEnum | None,
+        game_status: GameStatusEnum,
+        game_stage: GameStageEnum,
+        finish_date: datetime | None,
+        round_count: int,
+    ) -> Self:
+        return cls(
+            payload=GameDataPayload(
+                id=id,
+                players=players,
+                admin=admin,
+                start_date=start_date,
+                assigned_role=assigned_role,
+                winner_team=winner_team,
+                game_status=game_status,
+                game_stage=game_stage,
+                finish_date=finish_date,
+                round_count=round_count,
+            )
+        )

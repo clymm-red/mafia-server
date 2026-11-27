@@ -1,4 +1,4 @@
-from .game_data import GameData, GameDataPayload
+from .game_data import GameData, GameDataPayload, GamePlayerPayload
 from .game_info import GameInfo, GameInfoPayload
 from .game_role import GameRole, GameRolePayload
 from .game_error import GameError, GameErrorPayload
@@ -39,6 +39,7 @@ __all__ = [
     "GameInfoPayload",
     "GameNewStage",
     "GameNewStagePayload",
+    "GamePlayerPayload",
     "GameRole",
     "GameRolePayload",
     "GameStart",

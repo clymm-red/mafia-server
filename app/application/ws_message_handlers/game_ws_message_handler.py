@@ -12,11 +12,7 @@ from application.services import GameService, GameManagerService
 from infrastructure.logger import get_logger
 from infrastructure.websocket import WebSocketManager
 from presentation.http.v1.requests import CurrentUser
-from infrastructure.websocket.messages import (
-    GameError,
-    GameErrorPayload,
-    IncomingGameMessage,
-)
+from infrastructure.websocket.messages import GameError, IncomingGameMessage
 
 
 logger = get_logger(f"{__name__}.GameWebSocketMessageHandler")
@@ -67,10 +63,8 @@ class GameWSMessageHandler:
                         f"in room {ws_command.room_id}: {e.args}"
                     )
                     await self._websocket_manager.send_to_one(
-                        GameError(
-                            payload=GameErrorPayload(
-                                text=e.message or "Неизвестная ошибка"
-                            ),
+                        GameError.create(
+                            text=e.message or "Неизвестная ошибка"
                         ),
                         ws_command.room_id,
                         current_user.id,
@@ -102,10 +96,8 @@ class GameWSMessageHandler:
                         f"in room {ws_command.room_id}: {e.args}"
                     )
                     await self._websocket_manager.send_to_one(
-                        GameError(
-                            payload=GameErrorPayload(
-                                text=e.message or "Неизвестная ошибка"
-                            ),
+                        GameError.create(
+                            text=e.message or "Неизвестная ошибка"
                         ),
                         ws_command.room_id,
                         current_user.id,

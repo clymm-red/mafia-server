@@ -11,11 +11,7 @@ from domain.exceptions import DomainException
 from application.services import SecurityService, RoomWebSocketService
 from infrastructure.logger import get_logger
 from presentation.http.v1.requests import CurrentUser
-from infrastructure.websocket.messages import (
-    GameError,
-    LobbyError,
-    GameErrorPayload,
-)
+from infrastructure.websocket.messages import GameError, LobbyError
 from infrastructure.websocket.messages.incoming_message import IncomingMessage
 
 
@@ -101,7 +97,7 @@ async def _listen_websocket_messages(
                 case Topic.LOBBY:
                     error = LobbyError.create(text=e.message)
                 case Topic.GAME:
-                    error = GameError(payload=GameErrorPayload(text=e.message))
+                    error = GameError.create(text=e.message)
             await websocket.send_text(error.to_json())
 
 
