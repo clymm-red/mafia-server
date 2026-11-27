@@ -1,4 +1,3 @@
-from .game_command import GameCommand
 from .lobby_join_command import LobbyJoinCommand
 from .lobby_leave_command import LobbyLeaveCommand
 from .user_create_command import UserCreateCommand
@@ -10,5 +9,4 @@ __all__ = [
     "LobbyLeaveCommand",
     "LobbyCreateCommand",
     "UserCreateCommand",
-    "GameCommand",
 ]

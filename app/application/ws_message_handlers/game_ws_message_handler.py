@@ -1,18 +1,21 @@
+from typing import assert_never
+
 from dishka import FromDishka
 
-from domain.enums import (
-    Topic,
-    MessageType,
-    GameStageEnum,
-    WebSocketGameCommandActionTypeEnum,
-)
+from domain.enums import Topic, GameStageEnum, GameAction
 from domain.exceptions import DomainException, PlayerDisabledException
-from application.commands import GameCommand
 from application.services import GameService, GameManagerService
 from infrastructure.logger import get_logger
 from infrastructure.websocket import WebSocketManager
 from presentation.http.v1.requests import CurrentUser
-from infrastructure.websocket.messages import GameError, IncomingGameMessage
+from infrastructure.websocket.messages import GameError
+from infrastructure.websocket.messages.game.incoming import (
+    VotePayload,
+    LeavePayload,
+    EndTalkPayload,
+    RoleActionPayload,
+    IncomingGameMessage,
+)
 
 
 logger = get_logger(f"{__name__}.GameWebSocketMessageHandler")
@@ -33,108 +36,104 @@ class GameWSMessageHandler:
         self, message: IncomingGameMessage, current_user: CurrentUser
     ):
         """
-        Обрабатывает Websocket Message взависимости от его типа
+        Обрабатывает Game Websocket Message взависимости от его payload
         """
-        if message.message_type == MessageType.COMMAND:
-            ws_command = message.payload
-            game_command = GameCommand(
-                actor_id=current_user.id,
-                room_id=ws_command.room_id,
-                target_id=ws_command.target_id,
+        logger.debug("handle")
+        logger.debug(message.to_json())
+
+        payload = message.payload
+
+        match payload:
+            case RoleActionPayload():
+                await self.__process_role_action(payload, current_user)
+            case VotePayload():
+                await self.__process_vote(payload, current_user)
+            case EndTalkPayload():
+                await self.__end_talk(payload)
+            case LeavePayload():
+                await self.__leave(payload, current_user)
+            case _:
+                assert_never(payload)
+
+    async def __process_role_action(
+        self, payload: RoleActionPayload, current_user: CurrentUser
+    ):
+        game = await self._game_service.get_game_by_id(payload.room_id)
+
+        try:
+            if game.game_stage != GameStageEnum.NIGHT:
+                raise DomainException(Topic.GAME, "Неожиданное сообщение")
+
+            result = await self._game_service.process_role_action(
+                current_user.id, payload.room_id, payload.target_id
             )
-            game = await self._game_service.get_game_by_id(ws_command.room_id)
+        except DomainException as e:
+            logger.info(
+                f"Domain Exception from user {current_user.id} "
+                f"in room {payload.room_id}: {e.args}"
+            )
+            await self._websocket_manager.send_to_one(
+                GameError.create(text=e.message or "Неизвестная ошибка"),
+                payload.room_id,
+                current_user.id,
+            )
+            result = None
 
-            # R O L E   A C T I O N
-            if (
-                ws_command.action_type
-                == WebSocketGameCommandActionTypeEnum.ROLE_ACTION
-            ):
-                try:
-                    if game.game_stage != GameStageEnum.NIGHT:
-                        raise DomainException(
-                            Topic.GAME, "Неожиданное сообщение"
-                        )
-                    result = await self._game_service.process_role_action(
-                        game_command
-                    )
-                except DomainException as e:
-                    logger.info(
-                        f"Domain Exception from user {current_user.id} "
-                        f"in room {ws_command.room_id}: {e.args}"
-                    )
-                    await self._websocket_manager.send_to_one(
-                        GameError.create(
-                            text=e.message or "Неизвестная ошибка"
-                        ),
-                        ws_command.room_id,
-                        current_user.id,
-                    )
-                    result = None
+        await self._game_manager.set_event(
+            payload.room_id,
+            f"{GameAction.ROLE_ACTION}|"
+            f"{result if isinstance(result, bool) else ''}",
+        )
 
-                await self._game_manager.set_event(
-                    ws_command.room_id,
-                    f"{ws_command.action_type}|"
-                    f"{result if isinstance(result, bool) else ''}",
-                )
+    async def __process_vote(
+        self, payload: VotePayload, current_user: CurrentUser
+    ):
+        game = await self._game_service.get_game_by_id(payload.room_id)
 
-            # V O T E
-            elif (
-                ws_command.action_type
-                == WebSocketGameCommandActionTypeEnum.VOTE
-            ):
-                try:
-                    if game.game_stage != GameStageEnum.DAY_VOTE:
-                        raise DomainException(
-                            Topic.GAME, "Неожиданное сообщение"
-                        )
-                    await self._game_service.process_vote(game_command)
-                    target_id = str(ws_command.target_id)
+        try:
+            if game.game_stage != GameStageEnum.DAY_VOTE:
+                raise DomainException(Topic.GAME, "Неожиданное сообщение")
 
-                except DomainException as e:
-                    logger.info(
-                        f"Domain Exception from user {current_user.id} "
-                        f"in room {ws_command.room_id}: {e.args}"
-                    )
-                    await self._websocket_manager.send_to_one(
-                        GameError.create(
-                            text=e.message or "Неизвестная ошибка"
-                        ),
-                        ws_command.room_id,
-                        current_user.id,
-                    )
-                    logger.debug("Сообщение об ошибке отправлено")
-                    if not isinstance(e, PlayerDisabledException):
-                        logger.debug("wait for another vote")
-                        return
-                    target_id = ""
-
-                await self._game_manager.set_event(
-                    ws_command.room_id,
-                    f"{ws_command.action_type}|{target_id}",
-                )
+            await self._game_service.process_vote(
+                current_user.id, payload.room_id, payload.target_id
+            )
+            target_id = str(payload.target_id)
+        except DomainException as e:
+            logger.info(
+                f"Domain Exception from user {current_user.id} "
+                f"in room {payload.room_id}: {e.args}"
+            )
+            await self._websocket_manager.send_to_one(
+                GameError.create(text=e.message or "Неизвестная ошибка"),
+                payload.room_id,
+                current_user.id,
+            )
+            logger.debug("Сообщение об ошибке отправлено")
+            if not isinstance(e, PlayerDisabledException):
+                logger.debug("wait for another vote")
                 return
+            target_id = ""
 
-            # E N D   T A L K
-            elif (
-                ws_command.action_type
-                == WebSocketGameCommandActionTypeEnum.END_TALK
-            ):
-                if game.game_stage in (
-                    GameStageEnum.DAY_TALK,
-                    GameStageEnum.DAY_INTRO,
-                ):
-                    await self._game_manager.set_event(
-                        ws_command.room_id, ws_command.action_type
-                    )
+        await self._game_manager.set_event(
+            payload.room_id, f"{GameAction.VOTE}|{target_id}"
+        )
 
-            elif (
-                ws_command.action_type
-                == WebSocketGameCommandActionTypeEnum.LEAVE
-            ):
-                await self._game_manager.set_event(
-                    ws_command.room_id,
-                    f"{ws_command.action_type}|{str(current_user.id)}",
-                )
-                await self._websocket_manager.disconnect(
-                    ws_command.room_id, current_user.id
-                )
+    async def __end_talk(self, payload: EndTalkPayload):
+        game = await self._game_service.get_game_by_id(payload.room_id)
+
+        if game.game_stage in (
+            GameStageEnum.DAY_TALK,
+            GameStageEnum.DAY_INTRO,
+        ):
+            await self._game_manager.set_event(
+                payload.room_id, GameAction.END_TALK
+            )
+
+    async def __leave(self, payload: LeavePayload, current_user: CurrentUser):
+        await self._game_manager.set_event(
+            payload.room_id,
+            f"{GameAction.LEAVE}|{str(current_user.id)}",
+        )
+        await self._websocket_manager.disconnect(
+            payload.room_id, current_user.id
+        )

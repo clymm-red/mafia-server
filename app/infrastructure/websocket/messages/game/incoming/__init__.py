@@ -2,17 +2,26 @@ from typing import Annotated
 
 from pydantic import Field, TypeAdapter
 
-from .game_command import GameCommand, GameCommandPayload
+from .vote import Vote, VotePayload
+from .leave import Leave, LeavePayload
+from .end_talk import EndTalk, EndTalkPayload
+from .role_action import RoleAction, RoleActionPayload
 
 
-IncomingGameMessage = GameCommand
+IncomingGameMessage = Vote | RoleAction | EndTalk | Leave
 GameMessageAdapter = TypeAdapter(
-    Annotated[IncomingGameMessage, Field(discriminator="message_type")]
+    Annotated[IncomingGameMessage, Field(discriminator="action")]
 )
 
 __all__ = [
-    "GameCommand",
-    "GameCommandPayload",
+    "EndTalk",
+    "EndTalkPayload",
     "GameMessageAdapter",
     "IncomingGameMessage",
+    "Leave",
+    "LeavePayload",
+    "RoleAction",
+    "RoleActionPayload",
+    "Vote",
+    "VotePayload",
 ]

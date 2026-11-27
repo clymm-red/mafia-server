@@ -8,8 +8,8 @@ from domain.enums import (
     Topic,
     RoleEnum,
     GameStageEnum,
+    GameAction,
     PlayerStatusEnum,
-    WebSocketGameCommandActionTypeEnum,
 )
 from domain.entities import Game, Player
 from domain.exceptions import (
@@ -323,20 +323,20 @@ class GameManagerService:
                 event, _ = await asyncio.wait_for(
                     self.wait_for_event(
                         event_listener=event_listener,
-                        expected_event=WebSocketGameCommandActionTypeEnum.END_TALK,
+                        expected_event=GameAction.END_TALK,
                     ),
                     timeout=talk_timeout,
                 )
-                if event == WebSocketGameCommandActionTypeEnum.LEAVE:
+                if event == GameAction.LEAVE:
                     await self._game_service.leave_game(
                         game.id, game.players[i].user.id
                     )
                     logger.debug(event_listener)
 
-                elif event != WebSocketGameCommandActionTypeEnum.END_TALK:
+                elif event != GameAction.END_TALK:
                     exc = UnexpectedWebSocketMessageActionType(
                         provided=event,
-                        expected=WebSocketGameCommandActionTypeEnum.END_TALK,
+                        expected=GameAction.END_TALK,
                     )
                     logger.error(exc)
                     raise exc
@@ -401,15 +401,12 @@ class GameManagerService:
                 (event_type, extra_data) = await asyncio.wait_for(
                     self.wait_for_event(
                         event_listener=event_listener,
-                        expected_event=WebSocketGameCommandActionTypeEnum.ROLE_ACTION,
+                        expected_event=GameAction.ROLE_ACTION,
                     ),
                     timeout=turn_timeout,
                 )
 
-                if (
-                    event_type == WebSocketGameCommandActionTypeEnum.LEAVE
-                    and extra_data
-                ):
+                if event_type == GameAction.LEAVE and extra_data:
                     await self._game_service.leave_game(
                         game.id, UUID(extra_data)
                     )
@@ -517,12 +514,12 @@ class GameManagerService:
                 (event_type, target_id) = await asyncio.wait_for(
                     self.wait_for_event(
                         event_listener=event_listener,
-                        expected_event=WebSocketGameCommandActionTypeEnum.VOTE,
+                        expected_event=GameAction.VOTE,
                     ),
                     timeout=vote_timeout,
                 )
                 candidate_id = UUID(target_id)
-                if event_type == WebSocketGameCommandActionTypeEnum.LEAVE:
+                if event_type == GameAction.LEAVE:
                     await self._game_service.leave_game(game.id, player.user.id)
 
                 logger.debug(event_listener)
@@ -649,8 +646,8 @@ class GameManagerService:
     async def wait_for_event(
         self,
         event_listener: asyncio.Queue,
-        expected_event: WebSocketGameCommandActionTypeEnum,
-    ) -> tuple[WebSocketGameCommandActionTypeEnum, str | None]:
+        expected_event: GameAction,
+    ) -> tuple[GameAction, str | None]:
         while True:
             event_message: str = await event_listener.get()
             try:
@@ -662,11 +659,11 @@ class GameManagerService:
                     action_type, extra_info = event_parts
 
                 if action_type in (
-                    WebSocketGameCommandActionTypeEnum.LEAVE,
+                    GameAction.LEAVE,
                     expected_event,
                 ):
                     return (
-                        WebSocketGameCommandActionTypeEnum(action_type),
+                        GameAction(action_type),
                         extra_info,
                     )
                 else:

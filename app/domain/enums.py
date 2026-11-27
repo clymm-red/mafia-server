@@ -71,7 +71,7 @@ class Topic(StrEnum):
     GAME = "Game"
 
 
-class WebSocketGameCommandActionTypeEnum(StrEnum):
+class GameAction(StrEnum):
     VOTE = "Vote"
     ROLE_ACTION = "RoleAction"
     END_TALK = "EndTalk"

@@ -7,7 +7,6 @@ from domain.enums import Topic, RoleEnum, GameStageEnum
 from domain.entities import Game, Lobby, Player
 from domain.services import RoleDistributionService
 from domain.exceptions import DomainException, RoomNotFoundException
-from application.commands import GameCommand
 from infrastructure.logger import get_logger
 from infrastructure.redis.repositories import GameRepository, LobbyRepository
 
@@ -69,36 +68,41 @@ class GameService:
 
     async def process_role_action(
         self,
-        game_command: GameCommand,
+        actor_id: UUID,
+        room_id: str,
+        target_id: UUID | None,
     ) -> bool | None:
         """
         Обрабатывает ночной ход игрока
         """
-        logger.debug(f"process_role_action {game_command.room_id}")
-        game = await self.get_game_by_id(game_command.room_id)
-        if not game_command.target_id:
+        logger.debug(f"process_role_action {room_id}")
+        game = await self.get_game_by_id(room_id)
+        if not target_id:
             raise DomainException(
                 Topic.GAME,
-                "WebSocketGameCommand missing target_id",
+                "Game action missing target_id",
             )
-        result = await game.process_role_action(
-            game_command.actor_id, game_command.target_id
-        )
+        result = await game.process_role_action(actor_id, target_id)
         await self.save_game(game)
         return result if isinstance(result, bool) else None
 
-    async def process_vote(self, game_command: GameCommand) -> Game:
+    async def process_vote(
+        self,
+        actor_id: UUID,
+        room_id: str,
+        target_id: UUID | None,
+    ) -> Game:
         """
         Обрабатывает голос игрока
         """
-        logger.debug(f"process_vote {game_command.room_id}")
-        game = await self.get_game_by_id(game_command.room_id)
-        if not game_command.target_id:
+        logger.debug(f"process_vote {room_id}")
+        game = await self.get_game_by_id(room_id)
+        if not target_id:
             raise DomainException(
                 Topic.GAME,
-                "WebSocketGameCommand missing target_id",
+                "Game action missing target_id",
             )
-        await game.process_vote(game_command.actor_id, game_command.target_id)
+        await game.process_vote(actor_id, target_id)
         return await self.save_game(game)
 
     async def get_game_by_id(self, game_id: str) -> Game:
