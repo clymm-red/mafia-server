@@ -8,10 +8,7 @@ from fastapi.testclient import TestClient
 from starlette.testclient import WebSocketTestSession
 from starlette.websockets import WebSocketDisconnect
 
-from domain.enums import (
-    Topic,
-    MessageType,
-)
+from domain.enums import Topic, LobbyEvent
 from infrastructure.websocket.messages.lobby.incoming import (
     LeaveLobby,
     LeaveLobbyPayload,
@@ -53,7 +50,7 @@ def test_create_and_join_lobby(client: TestClient, redis_client, players):
                 message = json.loads(existing.receive_text())
                 if not lobby_admin:
                     lobby_admin.update(message["payload"])
-                assert message["messageType"] == MessageType.USER_CONNECT
+                assert message["event"] == LobbyEvent.USER_CONNECT
 
         for i in range(len(sessions) - 1, -1, -1):
             sessions[i].send_text(

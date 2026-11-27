@@ -1,6 +1,11 @@
 from enum import StrEnum
 
 
+class Topic(StrEnum):
+    LOBBY = "Lobby"
+    GAME = "Game"
+
+
 class TeamEnum(StrEnum):
     NONE = "None"
     # Classic mode
@@ -39,38 +44,6 @@ class GameStage(StrEnum):
     NIGHT = "Night"
 
 
-class MessageType(StrEnum):
-    """WebSocket message type"""
-
-    COMMAND = "Command"
-
-    ERROR = "Error"  # WebSocketGameInfoPayload
-    INFO = "Info"  # WebSocketGameInfoPayload
-
-    EVENT = "Event"
-
-    NEW_STAGE = "NewStage"  # WebSocketGameNewStagePayload
-
-    GAME_DATA = "GameData"  # WebSocketGameGameDataPayload
-
-    LOBBY_DATA = "LobbyData"
-
-    ACTION_REQUEST = "ActionRequest"  # WebSocketGameActionRequestPayload
-
-    USER_CONNECT = "UserConnect"  # WebSocketUserConnectionMessagePayload
-    USER_LEAVE = "UserLeave"  # WebSocketUserConnectionMessagePayload
-
-    GAME_START = "GameStart"
-    GAME_FINISH = "GameFinish"
-
-    ROLE = "Role"
-
-
-class Topic(StrEnum):
-    LOBBY = "Lobby"
-    GAME = "Game"
-
-
 class GameAction(StrEnum):
     VOTE = "Vote"
     ROLE_ACTION = "RoleAction"
@@ -78,11 +51,31 @@ class GameAction(StrEnum):
     LEAVE = "Leave"
 
 
+class GameEvent(StrEnum):
+    """WebSocket message type"""
+
+    ACTION_REQUEST = "ActionRequest"
+    GAME_DATA = "GameData"
+    ERROR = "Error"
+    EVENT = "Event"
+    GAME_FINISH = "GameFinish"
+    INFO = "Info"
+    NEW_STAGE = "NewStage"
+    ROLE = "Role"
+    GAME_START = "GameStart"
+
+
 class LobbyAction(StrEnum):
     KICK = "Kick"
     START = "Start"
     DELETE = "Delete"
     LEAVE = "Leave"
+
+
+class LobbyEvent(StrEnum):
+    USER_CONNECT = "UserConnect"
+    USER_LEAVE = "UserLeave"
+    ERROR = "Error"
 
 
 class PlayerStatusEnum(StrEnum):

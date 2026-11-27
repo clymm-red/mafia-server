@@ -1,6 +1,6 @@
 from typing import Self, Literal
 
-from domain.enums import MessageType
+from domain.enums import GameEvent as GameEventEnum
 from infrastructure.websocket.messages.base_message import BaseMessage
 from infrastructure.websocket.messages.base_payload import BasePayload
 
@@ -10,7 +10,7 @@ class GameEventPayload(BasePayload):
 
 
 class GameEvent(BaseMessage):
-    message_type: Literal[MessageType.EVENT] = MessageType.EVENT
+    event: Literal[GameEventEnum.EVENT] = GameEventEnum.EVENT
     payload: GameEventPayload
 
     @classmethod

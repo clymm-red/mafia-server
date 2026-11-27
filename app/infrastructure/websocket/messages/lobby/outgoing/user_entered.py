@@ -1,7 +1,7 @@
 from uuid import UUID
 from typing import Self, Literal
 
-from domain.enums import MessageType
+from domain.enums import LobbyEvent
 from infrastructure.websocket.messages.base_message import BaseMessage
 from infrastructure.websocket.messages.base_payload import BasePayload
 
@@ -12,7 +12,7 @@ class UserEnteredPayload(BasePayload):
 
 
 class UserEntered(BaseMessage):
-    message_type: Literal[MessageType.USER_CONNECT] = MessageType.USER_CONNECT
+    event: Literal[LobbyEvent.USER_CONNECT] = LobbyEvent.USER_CONNECT
     payload: UserEnteredPayload
 
     @classmethod
