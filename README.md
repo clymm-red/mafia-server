@@ -65,6 +65,5 @@ docker compose --profile all up
 Бэкенд:
 
 ```bash
-cd backend
-uv run fastapi dev
+uv run uvicorn main:app --app-dir app --reload
 ```

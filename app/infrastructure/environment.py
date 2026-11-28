@@ -1,8 +1,9 @@
 import sys
 import logging
+from typing import Any
+from collections.abc import Mapping
 
 from pydantic import ValidationError
-from pydantic_core import ErrorDetails
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from infrastructure.logger import get_logger
@@ -105,7 +106,7 @@ class Environment:
             raise EnvironmentError(model_name, missing_fields)
 
     @staticmethod
-    def __get_field_name(details: ErrorDetails):
+    def __get_field_name(details: Mapping[str, Any]) -> str:
         return ".".join(str(p) for p in details["loc"])
 
 

@@ -4,7 +4,7 @@
 all: typecheck lint fmt
 
 dev:
-	-uv run fastapi dev app/main.py
+	-uv run uvicorn main:app --app-dir app --reload
 
 lint:
 	-uv run ruff check .

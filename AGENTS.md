@@ -15,7 +15,7 @@ Guidance for AI coding agents working on the Mafia game backend.
 
 ```bash
 uv sync                      # install dependencies
-make dev                     # uv run fastapi dev app/main.py
+make dev                     # uv run uvicorn main:app --app-dir app --reload
 make lint                    # uv run ruff check .
 make fmt                     # uv run ruff format .
 make typecheck               # uv run ty check
@@ -28,8 +28,6 @@ Notes:
 
 - Makefile targets start with `-`, so a failing step does not stop the run.
   Always inspect the output instead of trusting the exit code.
-- The README's manual-run section is outdated (`cd backend`); use the Makefile
-  from the repository root.
 - Infrastructure: `docker compose --profile db up -d` starts Postgres, Redis
   and RustFS; `--profile all` starts the full stack including the backend.
 - A `.env` file is required. Settings are declared in
