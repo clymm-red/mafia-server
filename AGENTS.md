@@ -111,15 +111,12 @@ class LobbyRepository(ABC):
     async def get_by_id(self, lobby_id: str) -> Lobby | None: ...
 
     @abstractmethod
-    async def add_participant(
-        self, lobby_id: str, user_id: UUID
-    ) -> Lobby: ...
+    async def add_participant(self, lobby_id: str, user_id: UUID) -> Lobby: ...
 ```
 
 ```python
 # infrastructure/redis/repositories/lobby_repository.py
-class RedisLobbyRepository(LobbyRepository):
-    ...
+class RedisLobbyRepository(LobbyRepository): ...
 ```
 
 Do not migrate existing concrete repositories to ports unless the task asks

@@ -1,0 +1,11 @@
+[formatting]
+reorder_arrays = false
+reorder_inline_tables = false
+reorder_keys = false
+
+align_comments = false
+align_entries = false
+
+array_auto_collapse = false
+array_auto_expand = true
+array_trailing_comma = true

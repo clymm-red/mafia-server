@@ -1,4 +1,5 @@
 import uuid
+from typing import Any, cast
 from datetime import datetime
 
 from dishka import FromDishka
@@ -287,8 +288,9 @@ class GameRepository:
         """
         logger.debug(f"_get_game_model_by_id {game_id}")
         # Получаем данные лобби из Hash
-        game_data = await self.redis.hgetall(
-            self.GAME_KEY.format(game_id=game_id)
+        game_data = cast(
+            dict[str, Any],
+            await self.redis.hgetall(self.GAME_KEY.format(game_id=game_id)),
         )
 
         if not game_data:
@@ -385,8 +387,11 @@ class GameRepository:
         self, player_user_id: str
     ) -> PlayerModel | None:
         logger.debug(f"_get_player_model_by_user_id {player_user_id}")
-        player_data = await self.redis.hgetall(
-            self.PLAYER_KEY.format(player_user_id=player_user_id)
+        player_data = cast(
+            dict[str, Any],
+            await self.redis.hgetall(
+                self.PLAYER_KEY.format(player_user_id=player_user_id)
+            ),
         )
         if not player_data:
             return None

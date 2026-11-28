@@ -1,5 +1,6 @@
 import uuid
 from uuid import UUID
+from typing import Any, cast
 
 import redis.asyncio as redis
 from dishka import FromDishka
@@ -303,10 +304,13 @@ class LobbyRepository:
             logger.warning("RoomNotFoundException")
             raise RoomNotFoundException(context_id=lobby_id)
 
-        active_user_ids = list(
-            await self.redis.smembers(
-                self.LOBBY_PARTICIPANTS_KEY.format(lobby_id=lobby_model.id)
-            )
+        active_user_ids = cast(
+            list[str],
+            list(
+                await self.redis.smembers(
+                    self.LOBBY_PARTICIPANTS_KEY.format(lobby_id=lobby_model.id)
+                )
+            ),
         )
 
         await self._delete_lobby_data(lobby_id)
@@ -397,12 +401,12 @@ class LobbyRepository:
         logger.debug(f"all acttive users {all_active_users.items()}")
         lobby_id = await self.redis.hget(self.ACTIVE_USERS_KEY, str(user_id))
         logger.debug(f"_get_user_active_lobby_id {lobby_id}")
-        return lobby_id
+        return cast(str | None, lobby_id)
 
     async def get_user_active_room_id(self, user_id: UUID) -> str | None:
         logger.debug(f"get_user_active_room_id ({user_id})")
         room_id = await self.redis.hget(self.ACTIVE_USERS_KEY, str(user_id))
-        return room_id
+        return cast(str | None, room_id)
 
     async def _get_lobby_model_by_id(self, lobby_id: str) -> LobbyModel | None:
         """
@@ -416,8 +420,9 @@ class LobbyRepository:
             lobby_model (LobbyModel / None): Модель Lobby
         """
         logger.debug(f"_get_lobby_model_by_id ({lobby_id})")
-        lobby_data = await self.redis.hgetall(
-            self.LOBBY_KEY.format(lobby_id=lobby_id)
+        lobby_data = cast(
+            dict[str, Any],
+            await self.redis.hgetall(self.LOBBY_KEY.format(lobby_id=lobby_id)),
         )
         if not lobby_data:
             logger.warning(lobby_data)
